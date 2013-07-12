@@ -110,7 +110,7 @@ u32_t htonl_arch(u32_t n);
     throw_error(__FILE__, __LINE__, msg);\
   }
 
-#define LWIP_PLATFORM_DIAG(x) { printf_mlog x; }  
+#define LWIP_PLATFORM_DIAG(x) { printf_mlog x; }
 /*#define LWIP_DBG_MSG_MAX_SIZE 200
 #define LWIP_PLATFORM_DIAG(message)\
   {\
@@ -118,5 +118,14 @@ u32_t htonl_arch(u32_t n);
     snprintf(buffer, LWIP_DBG_MSG_MAX_SIZE, message);\
     debug_message(buffer);\
   }*/
+
+typedef int (*lwip_accept_udp_port_fun_t) (u16_t);
+
+void set_lwip_accept_udp_port_fun(lwip_accept_udp_port_fun_t ap_fun);
+
+int lwip_accept_udp_port(u16_t a_port);
+
+//#define LWIP_IP_ACCEPT_UDP_PORT(dst_port) ((dst_port) == PP_NTOHS(5011))
+#define LWIP_IP_ACCEPT_UDP_PORT(dst_port) lwip_accept_udp_port(PP_HTONS(dst_port))
 
 #endif /* __CC_H__ */

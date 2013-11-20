@@ -1,10 +1,10 @@
 /**
   ******************************************************************************
-  * @file      startup_stm32f4xx.s
+  * @file      startup_stm32f40_41xxx.s
   * @author    MCD Application Team
-  * @version   V1.0.2
-  * @date      05-March-2012
-  * @brief     STM32F4xx Devices vector table for Atollic TrueSTUDIO toolchain. 
+  * @version   V1.3.0
+  * @date      08-November-2013
+  * @brief     STM32F40xxx/41xxx Devices vector table for Atollic TrueSTUDIO toolchain.   
   *            This module performs:
   *                - Set the initial SP
   *                - Set the initial PC == Reset_Handler,
@@ -19,7 +19,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT 2012 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT 2013 STMicroelectronics</center></h2>
   *
   * Licensed under MCD-ST Liberty SW License Agreement V2, (the "License");
   * You may not use this file except in compliance with the License.
@@ -233,8 +233,7 @@ g_pfnVectors:
   .word     CRYP_IRQHandler                   /* CRYP crypto                  */                   
   .word     HASH_RNG_IRQHandler               /* Hash and Rng                 */
   .word     FPU_IRQHandler                    /* FPU                          */
-                         
-                         
+                        
 /*******************************************************************************
 *
 * Provide weak aliases for each Exception handler to the Default_Handler. 
@@ -514,5 +513,5 @@ g_pfnVectors:
 
    .weak      FPU_IRQHandler                  
    .thumb_set FPU_IRQHandler,Default_Handler  
-
+   
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

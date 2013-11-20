@@ -1,16 +1,16 @@
-;/******************** (C) COPYRIGHT 2012 STMicroelectronics ********************
-;* File Name          : startup_stm32f4xx.s
+;/******************** (C) COPYRIGHT 2013 STMicroelectronics ********************
+;* File Name          : startup_stm32f427_437xx.s
 ;* Author             : MCD Application Team
-;* Version            : V1.0.2
-;* Date               : 05-March-2012
-;* Description        : STM32F4xx devices vector table for EWARM toolchain.
+;* Version            : V1.3.0
+;* Date               : 08-November-2013
+;* Description        : STM32F427xx/437xx devices vector table for EWARM toolchain.
 ;*                      This module performs:
 ;*                      - Set the initial SP
 ;*                      - Set the initial PC == _iar_program_start,
 ;*                      - Set the vector table entries with the exceptions ISR 
 ;*                        address.
-;*                      - Configure the system clock and the external SRAM mounted on 
-;*                        STM324xG-EVAL board to be used as data memory (optional, 
+;*                      - Configure the system clock and the external SRAM/SDRAM mounted 
+;*                        on STM324x7I-EVAL board to be used as data memory (optional, 
 ;*                        to be enabled by user)
 ;*                      - Branches to main in the C library (which eventually
 ;*                        calls main()).
@@ -128,7 +128,7 @@ __vector_table
         DCD     TIM8_TRG_COM_TIM14_IRQHandler     ; TIM8 Trigger and Commutation and TIM14
         DCD     TIM8_CC_IRQHandler                ; TIM8 Capture Compare                                   
         DCD     DMA1_Stream7_IRQHandler           ; DMA1 Stream7                                           
-        DCD     FSMC_IRQHandler                   ; FSMC                                            
+        DCD     FMC_IRQHandler                    ; FMC                                            
         DCD     SDIO_IRQHandler                   ; SDIO                                            
         DCD     TIM5_IRQHandler                   ; TIM5                                            
         DCD     SPI3_IRQHandler                   ; SPI3                                            
@@ -162,7 +162,16 @@ __vector_table
         DCD     CRYP_IRQHandler                   ; CRYP crypto                                     
         DCD     HASH_RNG_IRQHandler               ; Hash and Rng
         DCD     FPU_IRQHandler                    ; FPU
-
+        DCD     UART7_IRQHandler                  ; UART7
+        DCD     UART8_IRQHandler                  ; UART8
+        DCD     SPI4_IRQHandler                   ; SPI4
+        DCD     SPI5_IRQHandler                   ; SPI5
+        DCD     SPI6_IRQHandler                   ; SPI6
+        DCD     SAI1_IRQHandler                   ; SAI1
+        DCD     0                                 ; Reserved 
+        DCD     0                                 ; Reserved 
+        DCD     DMA2D_IRQHandler                  ; DMA2D
+    
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;; Default interrupt handlers.
@@ -462,10 +471,10 @@ TIM8_CC_IRQHandler
 DMA1_Stream7_IRQHandler  
         B DMA1_Stream7_IRQHandler
 
-        PUBWEAK FSMC_IRQHandler
+        PUBWEAK FMC_IRQHandler
         SECTION .text:CODE:REORDER(1)
-FSMC_IRQHandler  
-        B FSMC_IRQHandler
+FMC_IRQHandler  
+        B FMC_IRQHandler
 
         PUBWEAK SDIO_IRQHandler
         SECTION .text:CODE:REORDER(1)
@@ -631,6 +640,42 @@ HASH_RNG_IRQHandler
         SECTION .text:CODE:REORDER(1)  
 FPU_IRQHandler  
         B FPU_IRQHandler
+
+        PUBWEAK UART7_IRQHandler
+        SECTION .text:CODE:REORDER(1)      
+UART7_IRQHandler 
+        B UART7_IRQHandler  
+
+        PUBWEAK UART8_IRQHandler
+        SECTION .text:CODE:REORDER(1) 
+UART8_IRQHandler             
+        B UART8_IRQHandler
+        
+        PUBWEAK SPI4_IRQHandler
+        SECTION .text:CODE:REORDER(1) 
+SPI4_IRQHandler
+        B SPI4_IRQHandler                 
+
+        PUBWEAK SPI5_IRQHandler
+        SECTION .text:CODE:REORDER(1) 
+SPI5_IRQHandler   
+        B SPI5_IRQHandler                  
+
+        PUBWEAK SPI6_IRQHandler
+        SECTION .text:CODE:REORDER(1) 
+SPI6_IRQHandler 
+        B SPI6_IRQHandler                    
+
+        PUBWEAK SAI1_IRQHandler
+        SECTION .text:CODE:REORDER(1) 
+SAI1_IRQHandler  
+        B SAI1_IRQHandler                
+
+        PUBWEAK DMA2D_IRQHandler
+        SECTION .text:CODE:REORDER(1) 
+DMA2D_IRQHandler 
+        B DMA2D_IRQHandler                  
+
 
         END
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

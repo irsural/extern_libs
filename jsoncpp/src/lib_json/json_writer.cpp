@@ -3,6 +3,13 @@
 // recognized in your jurisdiction.
 // See file LICENSE for detail or copy at http://jsoncpp.sourceforge.net/LICENSE
 
+#ifdef __BORLANDC__
+#pragma hdrstop
+#pragma warn -8071
+#pragma warn -8075
+#pragma warn -8084
+#endif // __BORLANDC__
+
 #if !defined(JSON_IS_AMALGAMATION)
 #include <json/writer.h>
 #include "json_tool.h"

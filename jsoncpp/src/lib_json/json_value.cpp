@@ -3,6 +3,10 @@
 // recognized in your jurisdiction.
 // See file LICENSE for detail or copy at http://jsoncpp.sourceforge.net/LICENSE
 
+#ifdef __BORLANDC__
+#pragma hdrstop
+#endif // __BORLANDC__
+
 #if !defined(JSON_IS_AMALGAMATION)
 #include <json/assertions.h>
 #include <json/value.h>
@@ -33,8 +37,13 @@ namespace Json {
 #else
 #define ALIGNAS(byte_alignment)
 #endif
+
+#ifdef __BORLANDC__
+const Value Value::null;
+#else  // !__BORLANDC__
 static const unsigned char ALIGNAS(8) kNull[sizeof(Value)] = {0};
 const Value& Value::null = reinterpret_cast<const Value&>(kNull);
+#endif // !__BORLANDC__
 
 const Int Value::minInt = Int(~(UInt(-1) / 2));
 const Int Value::maxInt = Int(UInt(-1) / 2);
@@ -85,7 +94,7 @@ static inline bool InRange(double d, T min, U max) {
 static inline char *duplicateStringValue(const char *value,
                                          unsigned int length = unknown) {
   if (length == unknown)
-    length = (unsigned int)strlen(value);
+    length = (unsigned int)std::strlen(value);
 
   // Avoid an integer overflow in the call to malloc below by limiting length
   // to a sane value.
@@ -96,7 +105,7 @@ static inline char *duplicateStringValue(const char *value,
   JSON_ASSERT_MESSAGE(newString != 0,
                       "in Json::Value::duplicateStringValue(): "
                       "Failed to allocate string value buffer");
-  memcpy(newString, value, length);
+  std::memcpy(newString, value, length);
   newString[length] = 0;
   return newString;
 }
@@ -198,13 +207,13 @@ Value::CZString &Value::CZString::operator=(const CZString &other) {
 
 bool Value::CZString::operator<(const CZString &other) const {
   if (cstr_)
-    return strcmp(cstr_, other.cstr_) < 0;
+    return std::strcmp(cstr_, other.cstr_) < 0;
   return index_ < other.index_;
 }
 
 bool Value::CZString::operator==(const CZString &other) const {
   if (cstr_)
-    return strcmp(cstr_, other.cstr_) == 0;
+    return std::strcmp(cstr_, other.cstr_) == 0;
   return index_ == other.index_;
 }
 
@@ -527,7 +536,7 @@ bool Value::operator<(const Value &other) const {
   case stringValue:
     return (value_.string_ == 0 && other.value_.string_) ||
            (other.value_.string_ && value_.string_ &&
-            strcmp(value_.string_, other.value_.string_) < 0);
+            std::strcmp(value_.string_, other.value_.string_) < 0);
 #ifndef JSON_VALUE_USE_INTERNAL_MAP
   case arrayValue:
   case objectValue: {
@@ -576,7 +585,7 @@ bool Value::operator==(const Value &other) const {
   case stringValue:
     return (value_.string_ == other.value_.string_) ||
            (other.value_.string_ && value_.string_ &&
-            strcmp(value_.string_, other.value_.string_) == 0);
+            std::strcmp(value_.string_, other.value_.string_) == 0);
 #ifndef JSON_VALUE_USE_INTERNAL_MAP
   case arrayValue:
   case objectValue:
@@ -767,7 +776,7 @@ float Value::asFloat() const {
   case realValue:
     return static_cast<float>(value_.real_);
   case nullValue:
-    return 0.0;
+    return 0.0f;
   case booleanValue:
     return value_.bool_ ? 1.0f : 0.0f;
   default:
@@ -1456,7 +1465,7 @@ void Path::makePath(const std::string &path, const InArgs &in) {
       ++current;
     } else {
       const char *beginName = current;
-      while (current != end && !strchr("[.", *current))
+      while (current != end && !std::strchr("[.", *current))
         ++current;
       args_.push_back(std::string(beginName, current));
     }

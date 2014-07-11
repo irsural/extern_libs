@@ -3,6 +3,12 @@
 // recognized in your jurisdiction.
 // See file LICENSE for detail or copy at http://jsoncpp.sourceforge.net/LICENSE
 
+#ifdef __BORLANDC__
+#pragma hdrstop
+#pragma warn -8071
+#pragma warn -8075
+#endif // __BORLANDC__
+
 #if !defined(JSON_IS_AMALGAMATION)
 #include <json/assertions.h>
 #include <json/reader.h>
@@ -14,6 +20,7 @@
 #include <cassert>
 #include <cstring>
 #include <istream>
+#include <stdio.h>
 
 #if defined(_MSC_VER) && _MSC_VER >= 1400 // VC++ 8.0
 // Disable warning about strdup being deprecated.
@@ -579,7 +586,7 @@ bool Reader::decodeDouble(Token &token, Value &decoded) {
 
   if (length <= bufferSize) {
     Char buffer[bufferSize + 1];
-    memcpy(buffer, token.start_, length);
+    std::memcpy(buffer, token.start_, length);
     buffer[length] = 0;
     count = sscanf(buffer, format, &value);
   } else {
@@ -828,10 +835,11 @@ std::istream &operator>>(std::istream &sin, Value &root) {
   Json::Reader reader;
   bool ok = reader.parse(sin, root, true);
   if (!ok) {
+    #ifndef __ICCARM__
     fprintf(stderr,
             "Error from reader: %s",
             reader.getFormattedErrorMessages().c_str());
-
+    #endif // !__ICCARM__
     JSON_FAIL_MESSAGE("reader error");
   }
   return sin;

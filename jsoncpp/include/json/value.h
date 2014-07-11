@@ -133,7 +133,11 @@ public:
   typedef Json::LargestUInt LargestUInt;
   typedef Json::ArrayIndex ArrayIndex;
 
+  #ifdef __BORLANDC__
+  static const Value null;
+  #else // !__BORLANDC__
   static const Value& null;
+  #endif // !__BORLANDC__
   /// Minimum signed integer value that can be stored in a Json::Value.
   static const LargestInt minLargestInt;
   /// Maximum signed integer value that can be stored in a Json::Value.
@@ -434,10 +438,10 @@ Json::Value obj_value(Json::objectValue); // {}
 
   // Accessors for the [start, limit) range of bytes within the JSON text from
   // which this value was parsed, if any.
-  void setOffsetStart(size_t start);
-  void setOffsetLimit(size_t limit);
-  size_t getOffsetStart() const;
-  size_t getOffsetLimit() const;
+  void setOffsetStart(std::size_t start);
+  void setOffsetLimit(std::size_t limit);
+  std::size_t getOffsetStart() const;
+  std::size_t getOffsetLimit() const;
 
 private:
   Value &resolveReference(const char *key, bool isStatic);
@@ -496,8 +500,8 @@ private:
 
   // [start, limit) byte offsets in the source JSON text from which this Value
   // was extracted.
-  size_t start_;
-  size_t limit_;
+  std::size_t start_;
+  std::size_t limit_;
 };
 
 /** \brief Experimental and untested: represents an element of the "path" to
@@ -914,7 +918,9 @@ public:
 
   ValueIteratorBase();
 #ifndef JSON_VALUE_USE_INTERNAL_MAP
-  explicit ValueIteratorBase(const Value::ObjectValues::iterator &current);
+  // Для Rad Studio пришлось определить object_value_iterator
+  typedef Value::ObjectValues::iterator object_value_iterator;
+  explicit ValueIteratorBase(const object_value_iterator &current);
 #else
   ValueIteratorBase(const ValueInternalArray::IteratorState &state);
   ValueIteratorBase(const ValueInternalMap::IteratorState &state);

@@ -429,7 +429,7 @@ static uint32_t DCD_HandleInEP_ISR(USB_OTG_CORE_HANDLE *pdev)
   uint32_t fifoemptymsk;
   diepint.d32 = 0;
   ep_intr = USB_OTG_ReadDevAllInEPItr(pdev);
-  
+
   while ( ep_intr )
   {
     if (ep_intr&0x1) /* In ITR */
@@ -450,7 +450,7 @@ static uint32_t DCD_HandleInEP_ISR(USB_OTG_CORE_HANDLE *pdev)
             /* prepare to rx more setup packets */
             USB_OTG_EP0_OutStart(pdev);
           }
-        }           
+        }        
       }
       if ( diepint.b.timeout )
       {
@@ -470,9 +470,12 @@ static uint32_t DCD_HandleInEP_ISR(USB_OTG_CORE_HANDLE *pdev)
       }       
       if (diepint.b.emptyintr)
       {
-        
+
         DCD_WriteEmptyTxFifo(pdev , epnum);
-        
+        if (pdev->dev.in_ep[epnum].xfer_len == pdev->dev.in_ep[epnum].xfer_count) {
+          fifoemptymsk = 0x1 << epnum;
+          USB_OTG_MODIFY_REG32(&pdev->regs.DREGS->DIEPEMPMSK, fifoemptymsk, 0);          
+        }        
         CLEAR_IN_EP_INTR(epnum, emptyintr);
       }
     }
@@ -669,7 +672,7 @@ static uint32_t DCD_WriteEmptyTxFifo(USB_OTG_CORE_HANDLE *pdev, uint32_t epnum)
       len = ep->maxpacket;
     }
     len32b = (len + 3) / 4;
-    
+   
     USB_OTG_WritePacket (pdev , ep->xfer_buff, epnum, len);
     
     ep->xfer_buff  += len;

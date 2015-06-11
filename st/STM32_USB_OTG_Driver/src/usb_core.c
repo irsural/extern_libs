@@ -1395,7 +1395,7 @@ USB_OTG_STS USB_OTG_EnableDevInt(USB_OTG_CORE_HANDLE *pdev)
   intmsk.b.enumdone   = 1;
   intmsk.b.inepintr   = 1;
   intmsk.b.outepintr  = 1;
-  intmsk.b.sofintr    = 1; 
+  //intmsk.b.sofintr    = 1; 
   
   intmsk.b.incomplisoin    = 1; 
   intmsk.b.incomplisoout    = 1;   

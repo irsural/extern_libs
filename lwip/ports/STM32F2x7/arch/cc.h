@@ -34,6 +34,8 @@
 
 #include "cpu.h"
 
+#include "lwipopts.h"
+
 #include "irscerror.h"
 
 
@@ -119,6 +121,7 @@ u32_t htonl_arch(u32_t n);
     debug_message(buffer);\
   }*/
 
+#if LWIP_UDP
 typedef int (*lwip_accept_udp_port_fun_t) (u16_t);
 
 void set_lwip_accept_udp_port_fun(lwip_accept_udp_port_fun_t ap_fun);
@@ -127,5 +130,7 @@ int lwip_accept_udp_port(u16_t a_port);
 
 //#define LWIP_IP_ACCEPT_UDP_PORT(dst_port) ((dst_port) == PP_NTOHS(5011))
 #define LWIP_IP_ACCEPT_UDP_PORT(dst_port) lwip_accept_udp_port(PP_HTONS(dst_port))
+
+#endif // LWIP_UDP
 
 #endif /* __CC_H__ */

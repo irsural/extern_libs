@@ -15,6 +15,8 @@ u32_t htonl_arch(u32_t n)
     ((n & 0xff000000UL) >> 24);
 }
 
+#if LWIP_UDP
+
 lwip_accept_udp_port_fun_t lwip_accept_udp_port_fun;
 
 void set_lwip_accept_udp_port_fun(lwip_accept_udp_port_fun_t ap_fun)
@@ -30,5 +32,8 @@ int lwip_accept_udp_port(u16_t a_port)
     return 0;
   }
 }
+
+#endif // LWIP_UDP
+
 #endif // defined (__ICCARM__)
 

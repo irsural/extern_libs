@@ -200,7 +200,7 @@ void DMA_DeInit(DMA_Stream_TypeDef* DMAy_Streamx)
 
   /* Disable the selected DMAy Streamx */
   DMAy_Streamx->CR &= ~((uint32_t)DMA_SxCR_EN);
-
+  
   /* Reset DMAy Streamx control register */
   DMAy_Streamx->CR  = 0;
   

@@ -539,10 +539,12 @@ USBH_StatusTypeDef USBH_VS_SetCur(USBH_HandleTypeDef *phost, uint16_t request_ty
   phost->Control.setup.b.wLength.w = wLength;
   
   USBH_StatusTypeDef status;
+  
+  uint32_t timeout = HAL_GetTick();
   do 
   {
     status = USBH_CtlReq(phost, (uint8_t *)&ProbeParams, wLength);
-  } while (status == USBH_BUSY);
+  } while (status == USBH_BUSY && ((HAL_GetTick() - timeout) < 200));
   
   return USBH_OK;
 }

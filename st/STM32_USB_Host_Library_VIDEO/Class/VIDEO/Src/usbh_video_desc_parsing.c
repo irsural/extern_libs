@@ -211,14 +211,15 @@ USBH_StatusTypeDef ParseCSDescriptors(VIDEO_ClassSpecificDescTypedef *class_desc
       {
         
         class_desc->vs_desc.UncompFrame[desc_number] = (VIDEO_UncompFrameDescTypeDef*) pdesc;
-        uint16_t width = LE16(class_desc->vs_desc.UncompFrame[desc_number]->wWidth);
-        uint16_t height = LE16(class_desc->vs_desc.UncompFrame[desc_number]->wHeight);
+        
         
         if (desc_number == 0) {
-          USBH_UsrLog("YUY2 frames(resolution, (fps, nanosec)):");
+          USBH_DbgLog("YUY2 frames(resolution, (fps, nanosec)):");
         }
-        if (USBH_DEBUG_LEVEL > 0) {
-          printf("(%dx%d), ", width, height);
+        if (USBH_DEBUG_LEVEL > 1) {
+          uint16_t width = LE16(class_desc->vs_desc.UncompFrame[desc_number]->wWidth);
+          uint16_t height = LE16(class_desc->vs_desc.UncompFrame[desc_number]->wHeight);
+          USBH_UsrLog("(%dx%d), ", width, height);
         }
 
         uint32_t fps_num = class_desc->vs_desc.UncompFrame[desc_number]->bFrameIntervalType;
@@ -229,7 +230,7 @@ USBH_StatusTypeDef ParseCSDescriptors(VIDEO_ClassSpecificDescTypedef *class_desc
             printf("(%g / %g), ", fps, fps_nanosec);
           }
         }
-        USBH_UsrLog("");
+        USBH_DbgLog("");
         
         class_desc->UncompFrameNum++;
       }

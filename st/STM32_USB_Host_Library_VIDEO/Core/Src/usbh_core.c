@@ -528,11 +528,22 @@ USBH_StatusTypeDef  USBH_Process(USBH_HandleTypeDef *phost)
       
       for (idx = 0; idx < USBH_MAX_NUM_SUPPORTED_CLASS ; idx++)
       {
-        //»щем нужный интерфейс
-        uint8_t interface = USBH_FindInterface(phost, 0x0E, 0x01, 0x00);
-        if(phost->pClass[idx]->ClassCode == phost->device.CfgDesc.Itf_Desc[interface].bInterfaceClass)
-        {
-          phost->pActiveClass = phost->pClass[idx];
+        if (phost->id == USB_CAMERA_ID) {
+          
+          //»щем нужный интерфейс
+          uint8_t interface = USBH_FindInterface(phost, 0x0E, 0x01, 0x00);
+          if(phost->pClass[idx]->ClassCode == phost->device.CfgDesc.Itf_Desc[interface].bInterfaceClass)
+          {
+            phost->pActiveClass = phost->pClass[idx];
+          }
+          
+        } else if (phost->id == USB_STORAGE_ID) {
+          
+          if(phost->pClass[idx]->ClassCode == phost->device.CfgDesc.Itf_Desc[0].bInterfaceClass)
+          {
+            phost->pActiveClass = phost->pClass[idx];
+          }
+          
         }
         
         /*

@@ -73,7 +73,7 @@
   * @{
   */
 #define SDRAM_DEVICE_ADDR  ((uint32_t)0xD0000000)
-#define SDRAM_DEVICE_SIZE  ((uint32_t)0x2000000)  /* SDRAM device size in Bytes (32MB)*/
+#define SDRAM_DEVICE_SIZE  ((uint32_t) 0x2000000)  /* SDRAM device size in Bytes (32MB)*/
 
 /* #define SDRAM_MEMORY_WIDTH            FMC_SDRAM_MEM_BUS_WIDTH_8  */
 /* #define SDRAM_MEMORY_WIDTH            FMC_SDRAM_MEM_BUS_WIDTH_16 */

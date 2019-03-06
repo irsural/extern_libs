@@ -216,11 +216,13 @@ USBH_StatusTypeDef ParseCSDescriptors(VIDEO_ClassSpecificDescTypedef *class_desc
         if (desc_number == 0) {
           USBH_DbgLog("YUY2 frames(resolution, (fps, nanosec)):");
         }
-        if (USBH_DEBUG_LEVEL > 1) {
-          uint16_t width = LE16(class_desc->vs_desc.UncompFrame[desc_number]->wWidth);
-          uint16_t height = LE16(class_desc->vs_desc.UncompFrame[desc_number]->wHeight);
-          USBH_UsrLog("(%dx%d), ", width, height);
-        }
+        
+        uint16_t width = LE16(class_desc->vs_desc.UncompFrame[desc_number]->wWidth);
+        uint16_t height = LE16(class_desc->vs_desc.UncompFrame[desc_number]->wHeight);
+        USBH_UsrLog("(%dx%d), ", width, height);
+        UNUSED(width);
+        UNUSED(height);
+        
 
         uint32_t fps_num = class_desc->vs_desc.UncompFrame[desc_number]->bFrameIntervalType;
         for (int i = 0; i < fps_num; i++) {

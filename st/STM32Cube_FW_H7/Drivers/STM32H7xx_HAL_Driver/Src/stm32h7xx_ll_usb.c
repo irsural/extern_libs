@@ -1171,19 +1171,17 @@ HAL_StatusTypeDef USB_HostInit (USB_OTG_GlobalTypeDef *USBx, USB_OTG_CfgTypeDef 
   }
   else
   {
+    
     /* set Rx FIFO size */
-    /*
-    USBx->GRXFSIZ  = (uint32_t )0x400; 
-    USBx->DIEPTXF0_HNPTXFSIZ = (uint32_t )(((0x100 << 16)& USB_OTG_NPTXFD) | 0x200);
-    USBx->HPTXFSIZ = (uint32_t )(((0xE0 << 16)& USB_OTG_HPTXFSIZ_PTXFD) | 0x300);
-    */
-    
-    
+//    USBx->GRXFSIZ  = (uint32_t )0x200; 
+//    USBx->DIEPTXF0_HNPTXFSIZ = (uint32_t )(((0x100 << 16)& USB_OTG_NPTXFD) | 0x200);
+//    USBx->HPTXFSIZ = (uint32_t )(((0xE0 << 16)& USB_OTG_HPTXFSIZ_PTXFD) | 0x300);
+
     uint32_t rx_fifo_size = 0x400;
     uint32_t tx_non_period_size = 0x10;
     uint32_t tx_periodic_size = 0x10;
       
-    /* set Rx FIFO size */
+    // set Rx FIFO size 
     //GRXFSIZ - Receive FIFO size register - in 32bit words
     USBx->GRXFSIZ  = (uint32_t )rx_fifo_size;
     
@@ -1193,6 +1191,7 @@ HAL_StatusTypeDef USB_HostInit (USB_OTG_GlobalTypeDef *USBx, USB_OTG_CfgTypeDef 
     //Host periodic TxFIFO depth + Host periodic TxFIFO start address
     USBx->HPTXFSIZ = (uint32_t )(((tx_periodic_size << 16U)& USB_OTG_HPTXFSIZ_PTXFD) | \
         (tx_non_period_size + rx_fifo_size));
+    
   }
   
   /* Enable the common interrupts */

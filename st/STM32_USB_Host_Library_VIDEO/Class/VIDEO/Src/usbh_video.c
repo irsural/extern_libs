@@ -168,6 +168,7 @@ static USBH_StatusTypeDef USBH_VIDEO_InterfaceInit (USBH_HandleTypeDef *phost)
     USBH_UsrLog("Endpoints detected: %d", ep_cnt);
     USBH_UsrLog("Selected EP number: %d, size: %d bytes", choosen_ep, VIDEO_Handle->camera.EpSize);
     USBH_UsrLog("Interface/altinterface: %d/%d", VIDEO_Handle->camera.interface, VIDEO_Handle->camera.AltSettings);
+    UNUSED(choosen_ep);
     
     /* 3rd Step:  Find and Parse Video interfaces */ 
     USBH_VIDEO_ParseCSDescriptors(phost);

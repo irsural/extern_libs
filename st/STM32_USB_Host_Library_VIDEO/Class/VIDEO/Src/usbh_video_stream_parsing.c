@@ -71,7 +71,7 @@ uint8_t video_stream_switch_buffers(void);
 void video_stream_process_packet(uint16_t size)
 {
   uvc_total_packet_cnt++;
-  if ((size < 2) && (size > UVC_RX_FIFO_SIZE_LIMIT)) {
+  if ((size < 2) || (size > UVC_RX_FIFO_SIZE_LIMIT)) {
     return; //error
   }
   

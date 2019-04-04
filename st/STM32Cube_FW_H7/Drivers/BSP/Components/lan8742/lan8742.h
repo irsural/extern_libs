@@ -270,7 +270,7 @@
   * @{
   */
 #define LAN8742_SMR_MODE       ((uint16_t)0x00E0U)
-#define LAN8742_SMR_PHY_ADDR   ((uint16_t)0x001FU)
+#define LAN8742_SMR_PHY_ADDR   ((uint16_t)0x0000U)
 /**
   * @}
   */

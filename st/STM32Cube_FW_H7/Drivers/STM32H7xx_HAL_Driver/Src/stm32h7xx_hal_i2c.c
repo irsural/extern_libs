@@ -789,16 +789,9 @@ HAL_StatusTypeDef HAL_I2C_Master_Receive(I2C_HandleTypeDef *hi2c, uint16_t DevAd
     while(hi2c->XferCount > 0U)
     {
       /* Wait until RXNE flag is set */
-      if(I2C_WaitOnRXNEFlagUntilTimeout(hi2c, Timeout, tickstart) != HAL_OK)
+      if(I2C_WaitOnFlagUntilTimeout(hi2c, I2C_FLAG_RXNE, RESET, Timeout, tickstart) != HAL_OK)
       {
-        if(hi2c->ErrorCode == HAL_I2C_ERROR_AF)
-        {
-          return HAL_ERROR;
-        }
-        else
-        {
-          return HAL_TIMEOUT;
-        }
+        return HAL_TIMEOUT;
       }
 
       /* Read data from RXDR */

@@ -2251,67 +2251,86 @@ static uint32_t SD_PowerON(SD_HandleTypeDef *hsd)
   {
     hsd->SdCard.CardVersion = CARD_V2_X;
   }
-
-  /* SEND CMD55 APP_CMD with RCA as 0 */
+  
   errorstate = SDMMC_CmdAppCommand(hsd->Instance, 0);
-  if(errorstate != HAL_SD_ERROR_NONE)
+  /* SD CARD */
+  /* Send ACMD41 SD_APP_OP_COND with Argument 0x80100000 */
+  while((count < SDMMC_MAX_VOLT_TRIAL) && (validvoltage == 0U))
   {
-    return HAL_SD_ERROR_UNSUPPORTED_FEATURE;
+    /* SEND CMD55 APP_CMD with RCA as 0 */
+    errorstate = SDMMC_CmdAppCommand(hsd->Instance, 0);
+    if(errorstate != HAL_SD_ERROR_NONE)
+    {
+      return errorstate;
+    }
+
+    /* Send CMD41 */
+    errorstate = SDMMC_CmdAppOperCommand(hsd->Instance, SDMMC_VOLTAGE_WINDOW_SD | SDMMC_HIGH_CAPACITY | SD_SWITCH_1_8V_CAPACITY);
+    if(errorstate != HAL_SD_ERROR_NONE)
+    {
+      return HAL_SD_ERROR_UNSUPPORTED_FEATURE;
+    }
+
+    /* Get command response */
+    response = SDMMC_GetResponse(hsd->Instance, SDMMC_RESP1);
+
+    /* Get operating voltage*/
+    validvoltage = (((response >> 31U) == 1U) ? 1U : 0U);
+
+    count++;
   }
-  else
+
+  if(count >= SDMMC_MAX_VOLT_TRIAL)
   {
-    /* SD CARD */
-    /* Send ACMD41 SD_APP_OP_COND with Argument 0x80100000 */
-    while((count < SDMMC_MAX_VOLT_TRIAL) && (validvoltage == 0U))
-    {
-      /* SEND CMD55 APP_CMD with RCA as 0 */
-      errorstate = SDMMC_CmdAppCommand(hsd->Instance, 0);
-      if(errorstate != HAL_SD_ERROR_NONE)
-      {
-        return errorstate;
-      }
+    return HAL_SD_ERROR_INVALID_VOLTRANGE;
+  }
 
-      /* Send CMD41 */
-      errorstate = SDMMC_CmdAppOperCommand(hsd->Instance, SDMMC_VOLTAGE_WINDOW_SD | SDMMC_HIGH_CAPACITY | SD_SWITCH_1_8V_CAPACITY);
-      if(errorstate != HAL_SD_ERROR_NONE)
-      {
-        return HAL_SD_ERROR_UNSUPPORTED_FEATURE;
-      }
-
-      /* Get command response */
-      response = SDMMC_GetResponse(hsd->Instance, SDMMC_RESP1);
-
-      /* Get operating voltage*/
-      validvoltage = (((response >> 31U) == 1U) ? 1U : 0U);
-
-      count++;
-    }
-
-    if(count >= SDMMC_MAX_VOLT_TRIAL)
-    {
-      return HAL_SD_ERROR_INVALID_VOLTRANGE;
-    }
-
-    if((response & SDMMC_HIGH_CAPACITY) == SDMMC_HIGH_CAPACITY) /* (response &= SD_HIGH_CAPACITY) */
-    {
-      hsd->SdCard.CardType = CARD_SDHC_SDXC;
+  if((response & SDMMC_HIGH_CAPACITY) == SDMMC_HIGH_CAPACITY) /* (response &= SD_HIGH_CAPACITY) */
+  {
+    hsd->SdCard.CardType = CARD_SDHC_SDXC;
 #if (USE_SD_TRANSCEIVER != 0U)
-      if((response & SD_SWITCH_1_8V_CAPACITY) == SD_SWITCH_1_8V_CAPACITY)
+    if((response & SD_SWITCH_1_8V_CAPACITY) == SD_SWITCH_1_8V_CAPACITY)
+    {
+      hsd->SdCard.CardSpeed = CARD_ULTRA_HIGH_SPEED;
+
+      /* Start switching procedue */
+      hsd->Instance->POWER |= SDMMC_POWER_VSWITCHEN;
+
+      /* Send CMD11 to switch 1.8V mode */
+      errorstate = SDMMC_CmdVoltageSwitch(hsd->Instance);
+      if(errorstate != HAL_SD_ERROR_NONE)
       {
-        hsd->SdCard.CardSpeed = CARD_ULTRA_HIGH_SPEED;
+          return errorstate;
+      }
 
-        /* Start switching procedue */
-        hsd->Instance->POWER |= SDMMC_POWER_VSWITCHEN;
-
-        /* Send CMD11 to switch 1.8V mode */
-        errorstate = SDMMC_CmdVoltageSwitch(hsd->Instance);
-        if(errorstate != HAL_SD_ERROR_NONE)
+      /* Check to CKSTOP */
+      while(( hsd->Instance->STA & SDMMC_FLAG_CKSTOP) != SDMMC_FLAG_CKSTOP)
+      {
+        if((HAL_GetTick() - tickstart) >=  SDMMC_DATATIMEOUT)
         {
-            return errorstate;
+          return HAL_SD_ERROR_TIMEOUT;
         }
+      }
 
-        /* Check to CKSTOP */
-        while(( hsd->Instance->STA & SDMMC_FLAG_CKSTOP) != SDMMC_FLAG_CKSTOP)
+      /* Clear CKSTOP Flag */
+      hsd->Instance->ICR = SDMMC_FLAG_CKSTOP;
+
+      /* Check to BusyD0 */
+      if(( hsd->Instance->STA & SDMMC_FLAG_BUSYD0) != SDMMC_FLAG_BUSYD0)
+      {
+        /* Error when activate Voltage Switch in SDMMC IP */
+        return SDMMC_ERROR_UNSUPPORTED_FEATURE;
+      }
+      else
+      {
+        /* Enable Transceiver Switch PIN */
+        HAL_SD_DriveTransceiver_1_8V_Callback(SET);
+
+        /* Switch ready */
+        hsd->Instance->POWER |= SDMMC_POWER_VSWITCH;
+
+        /* Check VSWEND Flag */
+        while(( hsd->Instance->STA & SDMMC_FLAG_VSWEND) != SDMMC_FLAG_VSWEND)
         {
           if((HAL_GetTick() - tickstart) >=  SDMMC_DATATIMEOUT)
           {
@@ -2319,54 +2338,27 @@ static uint32_t SD_PowerON(SD_HandleTypeDef *hsd)
           }
         }
 
-        /* Clear CKSTOP Flag */
-        hsd->Instance->ICR = SDMMC_FLAG_CKSTOP;
+        /* Clear VSWEND Flag */
+        hsd->Instance->ICR = SDMMC_FLAG_VSWEND;
 
-        /* Check to BusyD0 */
-        if(( hsd->Instance->STA & SDMMC_FLAG_BUSYD0) != SDMMC_FLAG_BUSYD0)
+        /* Check BusyD0 status */
+        if(( hsd->Instance->STA & SDMMC_FLAG_BUSYD0) == SDMMC_FLAG_BUSYD0)
         {
-          /* Error when activate Voltage Switch in SDMMC IP */
-          return SDMMC_ERROR_UNSUPPORTED_FEATURE;
+          /* Error when enabling 1.8V mode */
+          return HAL_SD_ERROR_INVALID_VOLTRANGE;
         }
-        else
-        {
-          /* Enable Transceiver Switch PIN */
-          HAL_SD_DriveTransceiver_1_8V_Callback(SET);
+        /* Switch to 1.8V OK */
 
-          /* Switch ready */
-          hsd->Instance->POWER |= SDMMC_POWER_VSWITCH;
+        /* Disable VSWITCH FLAG from SDMMC IP */
+        hsd->Instance->POWER = 0x13U;
 
-          /* Check VSWEND Flag */
-          while(( hsd->Instance->STA & SDMMC_FLAG_VSWEND) != SDMMC_FLAG_VSWEND)
-          {
-            if((HAL_GetTick() - tickstart) >=  SDMMC_DATATIMEOUT)
-            {
-              return HAL_SD_ERROR_TIMEOUT;
-            }
-          }
-
-          /* Clear VSWEND Flag */
-          hsd->Instance->ICR = SDMMC_FLAG_VSWEND;
-
-          /* Check BusyD0 status */
-          if(( hsd->Instance->STA & SDMMC_FLAG_BUSYD0) == SDMMC_FLAG_BUSYD0)
-          {
-            /* Error when enabling 1.8V mode */
-            return HAL_SD_ERROR_INVALID_VOLTRANGE;
-          }
-          /* Switch to 1.8V OK */
-
-          /* Disable VSWITCH FLAG from SDMMC IP */
-          hsd->Instance->POWER = 0x13U;
-
-          /* Clean Status flags */
-          hsd->Instance->ICR = 0xFFFFFFFFU;
-        }
-
-        hsd->SdCard.CardSpeed = CARD_ULTRA_HIGH_SPEED;
+        /* Clean Status flags */
+        hsd->Instance->ICR = 0xFFFFFFFFU;
       }
-#endif /* USE_SD_TRANSCEIVER  */
+
+      hsd->SdCard.CardSpeed = CARD_ULTRA_HIGH_SPEED;
     }
+#endif /* USE_SD_TRANSCEIVER  */
   }
 
   return HAL_SD_ERROR_NONE;

@@ -151,7 +151,7 @@ int32_t  LAN8742_RegisterBusIO(lan8742_Object_t *pObj, lan8742_IOCtx_t *ioctx)
        { 
          /* get software reset status */
          if(pObj->IO.ReadReg(pObj->DevAddr, LAN8742_BCR, &regvalue) >= 0)
-         { 
+         {
            tickstart = pObj->IO.GetTick();
            
            /* wait until software reset is done or timeout occured  */
@@ -168,6 +168,7 @@ int32_t  LAN8742_RegisterBusIO(lan8742_Object_t *pObj, lan8742_IOCtx_t *ioctx)
              else
              {
                status = LAN8742_STATUS_RESET_TIMEOUT;
+               break;
              }
            } 
          }
@@ -342,7 +343,7 @@ int32_t LAN8742_GetLinkState(lan8742_Object_t *pObj)
   if((readval & LAN8742_BSR_LINK_STATUS) == 0)
   {
     /* Return Link Down status */
-    return LAN8742_STATUS_LINK_DOWN;    
+    return LAN8742_STATUS_LINK_DOWN; 
   }
   
   /* Check Auto negotiaition */

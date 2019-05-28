@@ -398,6 +398,9 @@ USBH_StatusTypeDef  USBH_Process(USBH_HandleTypeDef *phost)
 {
   __IO USBH_StatusTypeDef status = USBH_FAIL;
   uint8_t idx = 0;
+  
+  static const uint32_t enum_timeout_ms = 500;
+  static uint32_t break_enum_time = 0;
  
   switch (phost->gState)
   {
@@ -455,14 +458,13 @@ USBH_StatusTypeDef  USBH_Process(USBH_HandleTypeDef *phost)
     osMessagePut ( phost->os_event, USBH_PORT_EVENT, 0);
 #endif    
     
+    break_enum_time = HAL_GetTick() + enum_timeout_ms;
+    
     break;
     
   case HOST_ENUMERATION:     
-    /* Check for enumeration status */  
-    //USBH_LL_ResetPort(phost)
     
-    //static tumeout = 0;
-    
+    /* Check for enumeration status */ 
     if ( USBH_HandleEnum(phost) == USBH_OK)
     {
       /* The function shall return USBH_OK when full enumeration is complete */
@@ -479,15 +481,11 @@ USBH_StatusTypeDef  USBH_Process(USBH_HandleTypeDef *phost)
         phost->gState  = HOST_INPUT; 
       }
           
-    } else {
-      /*
-      uint32_t time_to_reset_usb = HAL_GetTick();
-      //Если висит в энумерации больше 500 милисекунд -> делаем reset порта
-      if ((time_to_reset_usb - tumeout) > 500)
-      
-      tumeout = HAL_GetTick();
-      */
+    } 
+    if (HAL_GetTick() > break_enum_time) {
+      USBH_ReEnumerate(phost);
     }
+    
     break;
     
   case HOST_INPUT:

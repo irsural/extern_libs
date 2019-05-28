@@ -56,8 +56,8 @@
 /** @defgroup LAN8742_Private_Defines LAN8742 Private Defines
   * @{
   */
-#define LAN8742_SW_RESET_TO    ((uint32_t)500U)
-#define LAN8742_INIT_TO        ((uint32_t)2000U)
+#define LAN8742_SW_RESET_TO    ((uint32_t)200U)
+#define LAN8742_INIT_TO        ((uint32_t)200U)
 #define LAN8742_MAX_DEV_ADDR   ((uint32_t)31U)
 /**
   * @}

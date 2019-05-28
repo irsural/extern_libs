@@ -568,9 +568,15 @@ USBH_StatusTypeDef USBH_VS_GetCur(USBH_HandleTypeDef *phost, uint16_t request_ty
   phost->Control.setup.b.wLength.w = wLength;
   
   USBH_StatusTypeDef status;
+  const uint32_t wait_response_ms = 100;
+  uint32_t stop_tick = HAL_GetTick() + wait_response_ms;
   do 
   {
     status = USBH_CtlReq(phost, (uint8_t *)&ProbeParams, wLength);
+    if (HAL_GetTick() > stop_tick) {
+      status = USBH_FAIL;
+      break;
+    }
   } while (status == USBH_BUSY);
   
   if (status == USBH_OK)

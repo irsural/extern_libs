@@ -100,6 +100,9 @@
 /* Includes ------------------------------------------------------------------*/
 #include "stm32h7xx_hal.h"
 
+
+const uint16_t UARTPrescTable[12] = {1, 2, 4, 6, 8, 10, 12, 16, 32, 64, 128, 256};
+
 /** @addtogroup STM32H7xx_HAL_Driver
   * @{
   */

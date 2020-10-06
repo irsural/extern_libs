@@ -205,13 +205,17 @@ HAL_StatusTypeDef HAL_FLASH_Program(uint32_t TypeProgram, uint32_t FlashAddress,
       /* Set PG bit */
       SET_BIT(FLASH->CR2, FLASH_CR_PG);  
     }
-  
+
+    __ISB();
+    __DSB();
+    
     /* Program the 256 bits flash word */
     do
     {
       *dest_addr++ = *src_addr++;
     } while (--row_index != 0);
 
+    __ISB();
     __DSB();
     
     /* Wait for last operation to be completed */

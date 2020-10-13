@@ -174,10 +174,10 @@ USBH_StatusTypeDef ParseCSDescriptors(VIDEO_ClassSpecificDescTypedef *class_desc
         uint16_t width = LE16(class_desc->vs_desc.MJPEGFrame[desc_number]->wWidth);
         uint16_t height = LE16(class_desc->vs_desc.MJPEGFrame[desc_number]->wHeight);
         
-        if (desc_number == 0) {
+        if (desc_number == 2) {
           USBH_UsrLog("MJPEG frames(resolution, (fps, nanosec)):");
         }
-        if (USBH_DEBUG_LEVEL > 0) {
+        if (USBH_DEBUG_LEVEL > 2) {
           printf("(%dx%d), ", width, height);
         }
 
@@ -185,11 +185,11 @@ USBH_StatusTypeDef ParseCSDescriptors(VIDEO_ClassSpecificDescTypedef *class_desc
         for (int i = 0; i < fps_num; i++) {
           double fps_nanosec = class_desc->vs_desc.MJPEGFrame[desc_number]->dwFrameInterval[i];
           double fps = 1 / (fps_nanosec * 100e-9);     
-          if (USBH_DEBUG_LEVEL > 0) {
+          if (USBH_DEBUG_LEVEL > 2) {
             printf("(%g / %g), ", fps, fps_nanosec);
           }
         }
-        USBH_UsrLog("");
+        USBH_DbgLog("");
         
         class_desc->MJPEGFrameNum++;
       }
@@ -219,7 +219,7 @@ USBH_StatusTypeDef ParseCSDescriptors(VIDEO_ClassSpecificDescTypedef *class_desc
         
         uint16_t width = LE16(class_desc->vs_desc.UncompFrame[desc_number]->wWidth);
         uint16_t height = LE16(class_desc->vs_desc.UncompFrame[desc_number]->wHeight);
-        USBH_UsrLog("(%dx%d), ", width, height);
+        USBH_DbgLog("(%dx%d), ", width, height);
         UNUSED(width);
         UNUSED(height);
         
@@ -228,7 +228,7 @@ USBH_StatusTypeDef ParseCSDescriptors(VIDEO_ClassSpecificDescTypedef *class_desc
         for (int i = 0; i < fps_num; i++) {
           double fps_nanosec = class_desc->vs_desc.UncompFrame[desc_number]->dwFrameInterval[i];
           double fps = 1 / (fps_nanosec * 100e-9); 
-          if (USBH_DEBUG_LEVEL > 0) {
+          if (USBH_DEBUG_LEVEL > 2) {
             printf("(%g / %g), ", fps, fps_nanosec);
           }
         }

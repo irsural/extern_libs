@@ -399,8 +399,10 @@ USBH_StatusTypeDef  USBH_Process(USBH_HandleTypeDef *phost)
   __IO USBH_StatusTypeDef status = USBH_FAIL;
   uint8_t idx = 0;
   
-  static const uint32_t enum_timeout_ms = 500;
+  uint32_t enum_timeout_ms = 500;
   static uint32_t break_enum_time = 0;
+  
+  static uint32_t host_class_request_error_counter = 0;
  
   switch (phost->gState)
   {
@@ -412,6 +414,7 @@ USBH_StatusTypeDef  USBH_Process(USBH_HandleTypeDef *phost)
       phost->gState = HOST_DEV_WAIT_FOR_ATTACHMENT; 
       USBH_Delay(200); 
       USBH_LL_ResetPort(phost);
+      USBH_UsrLog("connected");  
 #if (USBH_USE_OS == 1)
       osMessagePut ( phost->os_event, USBH_PORT_EVENT, 0);
 #endif
@@ -560,7 +563,8 @@ USBH_StatusTypeDef  USBH_Process(USBH_HandleTypeDef *phost)
       {
         if(phost->pActiveClass->Init(phost)== USBH_OK)
         {
-          phost->gState  = HOST_CLASS_REQUEST; 
+          host_class_request_error_counter = 0;
+          phost->gState  = HOST_CLASS_REQUEST;
           USBH_UsrLog ("%s class started.", phost->pActiveClass->Name);
           
           /* Inform user that a class has been activated */
@@ -593,7 +597,15 @@ USBH_StatusTypeDef  USBH_Process(USBH_HandleTypeDef *phost)
       if(status == USBH_OK)
       {
         phost->gState  = HOST_CLASS;        
-      }  
+      } else {
+        host_class_request_error_counter++;
+        if (host_class_request_error_counter > 30) {
+          host_class_request_error_counter = 0;
+          
+          USBH_ReEnumerate(phost);
+          printf("REENUMERAAAAAAAAAAAAAAATE");
+        }
+      }
     }
     else
     {

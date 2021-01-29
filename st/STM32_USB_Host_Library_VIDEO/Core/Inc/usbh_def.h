@@ -61,6 +61,9 @@
 #define TRUE  1
 #endif
 
+#ifndef USBH_DEV_RESET_TIMEOUT
+#define USBH_DEV_RESET_TIMEOUT                        1000U
+#endif
 
 #define ValBit(VAR,POS)                               ((VAR) & (1 << (POS)))
 #define SetBit(VAR,POS)                               ((VAR) |= (1 << (POS)))
@@ -180,9 +183,11 @@
  #define USBH_MAX_PIPES_NBR                             15                                                
 #endif /* USBH_MAX_PIPES_NBR */
 
-#define USBH_DEVICE_ADDRESS_DEFAULT                     0
-#define USBH_MAX_ERROR_COUNT                            2
-#define USBH_DEVICE_ADDRESS                             1
+#define USBH_DEVICE_ADDRESS_DEFAULT                        0x00U
+#define USBH_DEVICE_ADDRESS                                0x01U
+
+#define USBH_MAX_ERROR_COUNT                               0x02U
+
 
 
 /**
@@ -334,6 +339,7 @@ typedef enum
   HOST_CLASS_REQUEST,  
   HOST_INPUT,
   HOST_SET_CONFIGURATION,
+  HOST_SET_WAKEUP_FEATURE,
   HOST_CHECK_CLASS,
   HOST_CLASS,
   HOST_SUSPENDED,
@@ -424,7 +430,12 @@ typedef struct
   uint8_t                           Data[USBH_MAX_DATA_BUFFER];
   uint8_t                           address;
   uint8_t                           speed;
+  uint8_t                           EnumCnt;
+  uint8_t                           RstCnt;
   __IO uint8_t                      is_connected;    
+  __IO uint8_t                      is_disconnected;
+  __IO uint8_t                      is_ReEnumerated;
+  uint8_t                           PortEnabled;
   uint8_t                           current_interface;   
   USBH_DevDescTypeDef               DevDesc;
   USBH_CfgDescTypeDef               CfgDesc; 
@@ -457,8 +468,9 @@ typedef struct _USBH_HandleTypeDef
   USBH_ClassTypeDef*    pClass[USBH_MAX_NUM_SUPPORTED_CLASS];
   USBH_ClassTypeDef*    pActiveClass;
   uint32_t              ClassNumber;
-  uint32_t              Pipes[15];
+  uint32_t              Pipes[16];
   __IO uint32_t         Timer;
+  uint32_t              Timeout;
   uint8_t               id;  
   void*                 pData;                  
   void                 (* pUser )(struct _USBH_HandleTypeDef *pHandle, uint8_t id);

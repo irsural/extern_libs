@@ -54,8 +54,9 @@
   * @{
   */
 /*Standard Feature Selector for clear feature command*/
-#define FEATURE_SELECTOR_ENDPOINT         0X00
-#define FEATURE_SELECTOR_DEVICE           0X01
+#define FEATURE_SELECTOR_ENDPOINT         0x00U
+#define FEATURE_SELECTOR_DEVICE           0x01U
+#define FEATURE_SELECTOR_REMOTEWAKEUP     0X01U
 
 
 #define INTERFACE_DESC_TYPE               0x04
@@ -120,8 +121,10 @@ USBH_StatusTypeDef USBH_Get_CfgDesc(USBH_HandleTypeDef *phost,
 USBH_StatusTypeDef USBH_SetAddress(USBH_HandleTypeDef *phost,                          
                             uint8_t DeviceAddress);
 
-USBH_StatusTypeDef USBH_SetInterface(USBH_HandleTypeDef *phost, 
-                        uint8_t ep_num, uint8_t altSetting);
+USBH_StatusTypeDef USBH_SetInterface(USBH_HandleTypeDef *phost, uint8_t ep_num,
+                                     uint8_t altSetting);
+
+USBH_StatusTypeDef USBH_SetFeature(USBH_HandleTypeDef *phost, uint8_t wValue);
 
 USBH_StatusTypeDef USBH_ClrFeature(USBH_HandleTypeDef *phost, 
                                    uint8_t ep_num);

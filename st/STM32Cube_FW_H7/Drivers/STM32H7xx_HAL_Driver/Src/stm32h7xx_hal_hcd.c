@@ -605,7 +605,37 @@ __weak void HAL_HCD_Disconnect_Callback(HCD_HandleTypeDef *hhcd)
   /* Prevent unused argument(s) compilation warning */
   UNUSED(hhcd);
   
-  /* NOTE : This function Should not be modified, when the callback is needed,
+  /* NOTE : This function should not be modified, when the callback is needed,
+            the HAL_HCD_Disconnect_Callback could be implemented in the user file
+   */
+}
+
+/**
+  * @brief  Port Enabled  Event callback.
+  * @param  hhcd HCD handle
+  * @retval None
+  */
+__weak void HAL_HCD_PortEnabled_Callback(HCD_HandleTypeDef *hhcd)
+{
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hhcd);
+
+  /* NOTE : This function should not be modified, when the callback is needed,
+            the HAL_HCD_Disconnect_Callback could be implemented in the user file
+   */
+}
+
+/**
+  * @brief  Port Disabled  Event callback.
+  * @param  hhcd HCD handle
+  * @retval None
+  */
+__weak void HAL_HCD_PortDisabled_Callback(HCD_HandleTypeDef *hhcd)
+{
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hhcd);
+
+  /* NOTE : This function should not be modified, when the callback is needed,
             the HAL_HCD_Disconnect_Callback could be implemented in the user file
    */
 } 
@@ -1204,7 +1234,7 @@ static void HCD_Port_IRQHandler  (HCD_HandleTypeDef *hhcd)
           USBx_HOST->HFIR = (uint32_t)60000;
         }
       }
-      HAL_HCD_Connect_Callback(hhcd);
+      HAL_HCD_PortEnabled_Callback(hhcd);
       
       if(hhcd->Init.speed == HCD_SPEED_HIGH)
       {

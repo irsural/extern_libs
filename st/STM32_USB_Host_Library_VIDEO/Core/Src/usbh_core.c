@@ -108,6 +108,12 @@ USBH_StatusTypeDef  USBH_Init(USBH_HandleTypeDef *phost, void (*pUsrFunc)(USBH_H
   /* Restore default states and prepare EP0 */
   DeInitStateMachine(phost);
 
+  /* Restore default Device connection states */
+  phost->device.PortEnabled = 0U;
+  phost->device.is_connected = 0U;
+  phost->device.is_disconnected = 0U;
+  phost->device.is_ReEnumerated = 0U;
+
   /* Assign User process */
   if(pUsrFunc != NULL)
   {
@@ -144,9 +150,16 @@ USBH_StatusTypeDef  USBH_DeInit(USBH_HandleTypeDef *phost)
 {
   DeInitStateMachine(phost);
 
+  /* Restore default Device connection states */
+  phost->device.PortEnabled = 0U;
+  phost->device.is_connected = 0U;
+  phost->device.is_disconnected = 0U;
+  phost->device.is_ReEnumerated = 0U;
+  phost->device.RstCnt = 0U;
+  phost->device.EnumCnt = 0U;
+
   if(phost->pData != NULL)
   {
-    phost->pActiveClass->pData = NULL;
     USBH_LL_Stop(phost);
   }
 
@@ -185,6 +198,8 @@ static USBH_StatusTypeDef  DeInitStateMachine(USBH_HandleTypeDef *phost)
 
   phost->device.address = USBH_ADDRESS_DEFAULT;
   phost->device.speed   = USBH_SPEED_FULL;
+  phost->device.RstCnt = 0U;
+  phost->device.EnumCnt = 0U;
 
   return USBH_OK;
 }
@@ -349,13 +364,13 @@ USBH_StatusTypeDef  USBH_Start  (USBH_HandleTypeDef *phost)
   */
 USBH_StatusTypeDef  USBH_Stop   (USBH_HandleTypeDef *phost)
 {
+  /* DeActivate VBUS on the port */
+  USBH_LL_DriverVBUS(phost, FALSE);
+
   /* Stop and cleanup the low level driver  */
   USBH_LL_Stop(phost);
 
-  /* DeActivate VBUS on the port */
-  USBH_LL_DriverVBUS (phost, FALSE);
-
-  /* FRee Control Pipes */
+  /* Free Control Pipes */
   USBH_FreePipe  (phost, phost->Control.pipe_in);
   USBH_FreePipe  (phost, phost->Control.pipe_out);
 
@@ -370,21 +385,16 @@ USBH_StatusTypeDef  USBH_Stop   (USBH_HandleTypeDef *phost)
   */
 USBH_StatusTypeDef  USBH_ReEnumerate   (USBH_HandleTypeDef *phost)
 {
-  /*Stop Host */
-  USBH_Stop(phost);
+  if (USBH_IsPortEnabled(phost))
+  {
+    phost->device.is_ReEnumerated = 1U;
 
-  /*Device has disconnected, so wait for 200 ms */
-  USBH_Delay(200);
+  	/*Stop Host */
+  	USBH_Stop(phost);
 
-  /* Set State machines in default state */
-  DeInitStateMachine(phost);
+    phost->device.is_disconnected = 1U;
+  }
 
-  /* Start again the host */
-  USBH_Start(phost);
-
-#if (USBH_USE_OS == 1)
-      osMessagePut ( phost->os_event, USBH_PORT_EVENT, 0);
-#endif
   return USBH_OK;
 }
 
@@ -399,10 +409,11 @@ USBH_StatusTypeDef  USBH_Process(USBH_HandleTypeDef *phost)
   __IO USBH_StatusTypeDef status = USBH_FAIL;
   uint8_t idx = 0;
 
-  uint32_t enum_timeout_ms = 500;
-  static uint32_t break_enum_time = 0;
-
-  static uint32_t host_class_request_error_counter = 0;
+  /* check for Host pending port disconnect event */
+  if (phost->device.is_disconnected == 1U)
+  {
+    phost->gState = HOST_DEV_DISCONNECTED;
+  }
 
   switch (phost->gState)
   {
@@ -410,23 +421,61 @@ USBH_StatusTypeDef  USBH_Process(USBH_HandleTypeDef *phost)
 
     if (phost->device.is_connected)
     {
-      /* Wait for 200 ms after connection */
-      phost->gState = HOST_DEV_WAIT_FOR_ATTACHMENT;
-      USBH_Delay(200);
-      USBH_LL_ResetPort(phost);
-      USBH_UsrLog("connected");
-#if (USBH_USE_OS == 1)
+        USBH_UsrLog("USB Device Connected");
+
+      	/* Wait for 200 ms after connection */
+      	phost->gState = HOST_DEV_WAIT_FOR_ATTACHMENT;
+      	USBH_Delay(200);
+      	USBH_LL_ResetPort(phost);
+
+        /* Make sure to start with Default address */
+        phost->device.address = USBH_ADDRESS_DEFAULT;
+        phost->Timeout = 0U;
+
+#if (USBH_USE_OS == 1U)
       osMessagePut ( phost->os_event, USBH_PORT_EVENT, 0);
 #endif
     }
     break;
 
-  case HOST_DEV_WAIT_FOR_ATTACHMENT:
+    case HOST_DEV_WAIT_FOR_ATTACHMENT: /* Wait for Port Enabled */
+
+      if (phost->device.PortEnabled == 1U)
+      {
+        USBH_UsrLog("USB Device Reset Completed");
+        phost->device.RstCnt = 0U;
+        phost->gState = HOST_DEV_ATTACHED;
+      }
+      else
+      {
+        if (phost->Timeout > USBH_DEV_RESET_TIMEOUT)
+        {
+          phost->device.RstCnt++;
+          if (phost->device.RstCnt > 3U)
+          {
+            /* Buggy Device can't complete reset */
+            USBH_UsrLog("USB Reset Failed, Please unplug the Device.");
+            phost->gState = HOST_ABORT_STATE;
+          }
+          else
+          {
+            phost->gState = HOST_IDLE;
+          }
+        }
+        else
+        {
+          phost->Timeout += 10U;
+          USBH_Delay(10U);
+        }
+      }
     break;
 
   case HOST_DEV_ATTACHED :
 
-    USBH_UsrLog("USB Device Attached");
+      if (phost->pUser != NULL)
+      {
+        phost->pUser(phost, HOST_USER_CONNECTION);
+      }
 
     /* Wait for 100 ms after Reset */
     USBH_Delay(100);
@@ -460,9 +509,6 @@ USBH_StatusTypeDef  USBH_Process(USBH_HandleTypeDef *phost)
 #if (USBH_USE_OS == 1)
     osMessagePut ( phost->os_event, USBH_PORT_EVENT, 0);
 #endif
-
-    break_enum_time = HAL_GetTick() + enum_timeout_ms;
-
     break;
 
   case HOST_ENUMERATION:
@@ -483,10 +529,6 @@ USBH_StatusTypeDef  USBH_Process(USBH_HandleTypeDef *phost)
       {
         phost->gState  = HOST_INPUT;
       }
-
-    }
-    if (HAL_GetTick() > break_enum_time) {
-      USBH_ReEnumerate(phost);
     }
 
     break;
@@ -510,12 +552,26 @@ USBH_StatusTypeDef  USBH_Process(USBH_HandleTypeDef *phost)
     /* set configuration */
     if (USBH_SetCfg(phost, phost->device.CfgDesc.bConfigurationValue) == USBH_OK)
     {
-      phost->gState  = HOST_CHECK_CLASS;
-      USBH_UsrLog ("Default configuration set.");
-
+        phost->gState = HOST_SET_WAKEUP_FEATURE;
+        USBH_UsrLog ("Default configuration set.");
     }
-
     break;
+
+    case  HOST_SET_WAKEUP_FEATURE:
+
+      if ((phost->device.CfgDesc.bmAttributes) & (1U << 5))
+      {
+        if (USBH_SetFeature(phost, FEATURE_SELECTOR_REMOTEWAKEUP) == USBH_OK)
+        {
+          USBH_UsrLog("Device remote wakeup enabled");
+          phost->gState = HOST_CHECK_CLASS;
+        }
+      }
+      else
+      {
+        phost->gState = HOST_CHECK_CLASS;
+      }
+	  break;
 
   case HOST_CHECK_CLASS:
 
@@ -536,6 +592,7 @@ USBH_StatusTypeDef  USBH_Process(USBH_HandleTypeDef *phost)
           if(phost->pClass[idx]->ClassCode == phost->device.CfgDesc.Itf_Desc[interface].bInterfaceClass)
           {
             phost->pActiveClass = phost->pClass[idx];
+            break;
           }
 
         } else if (phost->id == USB_STORAGE_ID) {
@@ -543,32 +600,21 @@ USBH_StatusTypeDef  USBH_Process(USBH_HandleTypeDef *phost)
           if(phost->pClass[idx]->ClassCode == phost->device.CfgDesc.Itf_Desc[0].bInterfaceClass)
           {
             phost->pActiveClass = phost->pClass[idx];
+            break;
           }
 
         }
-
-        /*
-        //»щем нужный интерфейс
-
-        for (int i = 0; i < USBH_MAX_NUM_INTERFACES; i++) {
-          if(phost->pClass[idx]->ClassCode == phost->device.CfgDesc.Itf_Desc[i].bInterfaceClass)
-          {
-            phost->pActiveClass = phost->pClass[idx];
-          }
-        }
-        */
       }
 
       if(phost->pActiveClass != NULL)
       {
         if(phost->pActiveClass->Init(phost)== USBH_OK)
         {
-          host_class_request_error_counter = 0;
           phost->gState  = HOST_CLASS_REQUEST;
           USBH_UsrLog ("%s class started.", phost->pActiveClass->Name);
 
           /* Inform user that a class has been activated */
-          //phost->pUser(phost, HOST_USER_CLASS_SELECTED);
+          phost->pUser(phost, HOST_USER_CLASS_SELECTED);
         }
         else
         {
@@ -597,14 +643,16 @@ USBH_StatusTypeDef  USBH_Process(USBH_HandleTypeDef *phost)
       if(status == USBH_OK)
       {
         phost->gState  = HOST_CLASS;
-      } else {
-        host_class_request_error_counter++;
-        if (host_class_request_error_counter > 30) {
-          host_class_request_error_counter = 0;
-
-          USBH_ReEnumerate(phost);
-        }
       }
+        else if (status == USBH_FAIL)
+        {
+          phost->gState = HOST_ABORT_STATE;
+          USBH_ErrLog("Device not responding Please Unplug.");
+        }
+        else
+        {
+          /* .. */
+        }
     }
     else
     {
@@ -626,6 +674,7 @@ USBH_StatusTypeDef  USBH_Process(USBH_HandleTypeDef *phost)
     break;
 
   case HOST_DEV_DISCONNECTED :
+      phost->device.is_disconnected = 0U;
 
     DeInitStateMachine(phost);
 
@@ -635,6 +684,26 @@ USBH_StatusTypeDef  USBH_Process(USBH_HandleTypeDef *phost)
       phost->pActiveClass->DeInit(phost);
       phost->pActiveClass = NULL;
     }
+
+      if (phost->pUser != NULL)
+      {
+        phost->pUser(phost, HOST_USER_DISCONNECTION);
+      }
+      USBH_UsrLog("USB Device disconnected");
+
+      if (phost->device.is_ReEnumerated == 1U)
+      {
+        phost->device.is_ReEnumerated = 0U;
+
+        /* Start the host and re-enable Vbus */
+        USBH_Start(phost);
+      }
+      else
+      {
+        /* Device Disconnection Completed, start USB Driver */
+        USBH_LL_Start(phost);
+      }
+
     break;
 
   case HOST_ABORT_STATE:
@@ -654,53 +723,96 @@ USBH_StatusTypeDef  USBH_Process(USBH_HandleTypeDef *phost)
 static USBH_StatusTypeDef USBH_HandleEnum (USBH_HandleTypeDef *phost)
 {
   USBH_StatusTypeDef Status = USBH_BUSY;
+  USBH_StatusTypeDef ReqStatus = USBH_BUSY;
 
   switch (phost->EnumState)
   {
   case ENUM_IDLE:
     /* Get Device Desc for only 1st 8 bytes : To get EP0 MaxPacketSize */
-    if ( USBH_Get_DevDesc(phost, 8) == USBH_OK)
+    ReqStatus = USBH_Get_DevDesc(phost, 8U);
+    if (ReqStatus == USBH_OK)
     {
       phost->Control.pipe_size = phost->device.DevDesc.bMaxPacketSize;
 
       phost->EnumState = ENUM_GET_FULL_DEV_DESC;
 
       /* modify control channels configuration for MaxPacket size */
-      USBH_OpenPipe (phost,
-                           phost->Control.pipe_in,
-                           0x80,
-                           phost->device.address,
-                           phost->device.speed,
-                           USBH_EP_CONTROL,
-                           phost->Control.pipe_size);
+        USBH_OpenPipe(phost, phost->Control.pipe_in, 0x80U, phost->device.address,
+                      phost->device.speed, USBH_EP_CONTROL,
+                      (uint16_t)phost->Control.pipe_size);
 
       /* Open Control pipes */
-      USBH_OpenPipe (phost,
-                           phost->Control.pipe_out,
-                           0x00,
-                           phost->device.address,
-                           phost->device.speed,
-                           USBH_EP_CONTROL,
-                           phost->Control.pipe_size);
+        USBH_OpenPipe(phost, phost->Control.pipe_out, 0x00U, phost->device.address,
+                      phost->device.speed, USBH_EP_CONTROL,
+                      (uint16_t)phost->Control.pipe_size);
+      }
+      else if (ReqStatus == USBH_NOT_SUPPORTED)
+      {
+        USBH_ErrLog("Control error: Get Device Descriptor request failed");
+        phost->device.EnumCnt++;
+        if (phost->device.EnumCnt > 3U)
+        {
+          /* Buggy Device can't complete get device desc request */
+          USBH_UsrLog("Control error, Device not Responding Please unplug the Device.");
+          phost->gState = HOST_ABORT_STATE;
+        }
+        else
+        {
+          /* free control pipes */
+          USBH_FreePipe(phost, phost->Control.pipe_out);
+          USBH_FreePipe(phost, phost->Control.pipe_in);
 
+          /* Reset the USB Device */
+          phost->gState = HOST_IDLE;
+        }
+      }
+      else
+      {
+        /* .. */
     }
     break;
 
   case ENUM_GET_FULL_DEV_DESC:
     /* Get FULL Device Desc  */
-    if ( USBH_Get_DevDesc(phost, USB_DEVICE_DESC_SIZE)== USBH_OK)
+      ReqStatus = USBH_Get_DevDesc(phost, USB_DEVICE_DESC_SIZE);
+      if (ReqStatus == USBH_OK)
     {
       USBH_DbgLog("PID: %xh", phost->device.DevDesc.idProduct );
       USBH_DbgLog("VID: %xh", phost->device.DevDesc.idVendor );
 
       phost->EnumState = ENUM_SET_ADDR;
+      }
+      else if (ReqStatus == USBH_NOT_SUPPORTED)
+      {
+        USBH_ErrLog("Control error: Get Full Device Descriptor request failed");
+        phost->device.EnumCnt++;
+        if (phost->device.EnumCnt > 3U)
+        {
+          /* Buggy Device can't complete get device desc request */
+          USBH_UsrLog("Control error, Device not Responding Please unplug the Device.");
+          phost->gState = HOST_ABORT_STATE;
+        }
+        else
+        {
+          /* Free control pipes */
+          USBH_FreePipe(phost, phost->Control.pipe_out);
+          USBH_FreePipe(phost, phost->Control.pipe_in);
 
+          /* Reset the USB Device */
+          phost->EnumState = ENUM_IDLE;
+          phost->gState = HOST_IDLE;
+        }
+      }
+      else
+      {
+        /* .. */
     }
     break;
 
   case ENUM_SET_ADDR:
     /* set address */
-    if ( USBH_SetAddress(phost, USBH_DEVICE_ADDRESS) == USBH_OK)
+      ReqStatus = USBH_SetAddress(phost, USBH_DEVICE_ADDRESS);
+      if (ReqStatus == USBH_OK)
     {
       USBH_Delay(2);
       phost->device.address = USBH_DEVICE_ADDRESS;
@@ -719,51 +831,118 @@ static USBH_StatusTypeDef USBH_HandleEnum (USBH_HandleTypeDef *phost)
                            phost->Control.pipe_size);
 
       /* Open Control pipes */
-      USBH_OpenPipe (phost,
-                           phost->Control.pipe_out,
-                           0x00,
-                           phost->device.address,
-                           phost->device.speed,
-                           USBH_EP_CONTROL,
-                           phost->Control.pipe_size);
+        USBH_OpenPipe(phost, phost->Control.pipe_out, 0x00U, phost->device.address,
+                      phost->device.speed, USBH_EP_CONTROL,
+                      (uint16_t)phost->Control.pipe_size);
+      }
+      else if (ReqStatus == USBH_NOT_SUPPORTED)
+      {
+        USBH_ErrLog("Control error: Device Set Address request failed");
+
+        /* Buggy Device can't complete get device desc request */
+        USBH_UsrLog("Control error, Device not Responding Please unplug the Device.");
+        phost->gState = HOST_ABORT_STATE;
+        phost->EnumState = ENUM_IDLE;
+      }
+      else
+      {
+        /* .. */
     }
     break;
 
   case ENUM_GET_CFG_DESC:
     /* get standard configuration descriptor */
-    if ( USBH_Get_CfgDesc(phost,
-                          USB_CONFIGURATION_DESC_SIZE) == USBH_OK)
+      ReqStatus = USBH_Get_CfgDesc(phost, USB_CONFIGURATION_DESC_SIZE);
+      if (ReqStatus == USBH_OK)
     {
       phost->EnumState = ENUM_GET_FULL_CFG_DESC;
     }
+      else if (ReqStatus == USBH_NOT_SUPPORTED)
+      {
+        USBH_ErrLog("Control error: Get Device configuration descriptor request failed");
+        phost->device.EnumCnt++;
+        if (phost->device.EnumCnt > 3U)
+        {
+          /* Buggy Device can't complete get device desc request */
+          USBH_UsrLog("Control error, Device not Responding Please unplug the Device.");
+          phost->gState = HOST_ABORT_STATE;
+        }
+        else
+        {
+          /* Free control pipes */
+          USBH_FreePipe(phost, phost->Control.pipe_out);
+          USBH_FreePipe(phost, phost->Control.pipe_in);
+
+          /* Reset the USB Device */
+          phost->EnumState = ENUM_IDLE;
+          phost->gState = HOST_IDLE;
+        }
+      }
+      else
+      {
+        /* .. */
+      }
     break;
 
   case ENUM_GET_FULL_CFG_DESC:
     /* get FULL config descriptor (config, interface, endpoints) */
-    if (USBH_Get_CfgDesc(phost,
-                         phost->device.CfgDesc.wTotalLength) == USBH_OK)
+      ReqStatus = USBH_Get_CfgDesc(phost, phost->device.CfgDesc.wTotalLength);
+      if (ReqStatus == USBH_OK)
     {
       phost->EnumState = ENUM_GET_MFC_STRING_DESC;
     }
+      else if (ReqStatus == USBH_NOT_SUPPORTED)
+      {
+        USBH_ErrLog("Control error: Get Device configuration descriptor request failed");
+        phost->device.EnumCnt++;
+        if (phost->device.EnumCnt > 3U)
+        {
+          /* Buggy Device can't complete get device desc request */
+          USBH_UsrLog("Control error, Device not Responding Please unplug the Device.");
+          phost->gState = HOST_ABORT_STATE;
+        }
+        else
+        {
+          /* Free control pipes */
+          USBH_FreePipe(phost, phost->Control.pipe_out);
+          USBH_FreePipe(phost, phost->Control.pipe_in);
+
+          /* Reset the USB Device */
+          phost->EnumState = ENUM_IDLE;
+          phost->gState = HOST_IDLE;
+        }
+      }
+      else
+      {
+        /* .. */
+      }
     break;
 
   case ENUM_GET_MFC_STRING_DESC:
-    if (phost->device.DevDesc.iManufacturer != 0)
-    { /* Check that Manufacturer String is available */
-
-      if ( USBH_Get_StringDesc(phost,
-                               phost->device.DevDesc.iManufacturer,
-                                phost->device.Data ,
-                               0xff) == USBH_OK)
+      if (phost->device.DevDesc.iManufacturer != 0U)
       {
-        /* User callback for Manufacturing string */
-        USBH_DbgLog("Manufacturer : %s",  (char *)phost->device.Data);
+        /* Check that Manufacturer String is available */
+        ReqStatus = USBH_Get_StringDesc(phost, phost->device.DevDesc.iManufacturer,
+                                        phost->device.Data, 0xFFU);
+        if (ReqStatus == USBH_OK)
+        {
+          /* User callback for Manufacturing string */
+          USBH_UsrLog("Manufacturer : %s", (char *)(void *)phost->device.Data);
+          phost->EnumState = ENUM_GET_PRODUCT_STRING_DESC;
+        }
+        else if (ReqStatus == USBH_NOT_SUPPORTED)
+      {
+          USBH_UsrLog("Manufacturer : N/A");
         phost->EnumState = ENUM_GET_PRODUCT_STRING_DESC;
 
 #if (USBH_USE_OS == 1)
     osMessagePut ( phost->os_event, USBH_STATE_CHANGED_EVENT, 0);
 #endif
       }
+        else
+        {
+          /* .. */
+        }
     }
     else
     {
@@ -776,21 +955,39 @@ static USBH_StatusTypeDef USBH_HandleEnum (USBH_HandleTypeDef *phost)
     break;
 
   case ENUM_GET_PRODUCT_STRING_DESC:
-    if (phost->device.DevDesc.iProduct != 0)
-    { /* Check that Product string is available */
-      if ( USBH_Get_StringDesc(phost,
-                               phost->device.DevDesc.iProduct,
-                               phost->device.Data,
-                               0xff) == USBH_OK)
+      if (phost->device.DevDesc.iProduct != 0U)
+      {
+        /* Check that Product string is available */
+        ReqStatus = USBH_Get_StringDesc(phost, phost->device.DevDesc.iProduct,
+                                        phost->device.Data, 0xFFU);
+        if (ReqStatus == USBH_OK)
       {
         /* User callback for Product string */
-        USBH_DbgLog("Product : %s",  (char *)phost->device.Data);
+          USBH_UsrLog("Product : %s", (char *)(void *)phost->device.Data);
         phost->EnumState = ENUM_GET_SERIALNUM_STRING_DESC;
       }
+        else if (ReqStatus == USBH_NOT_SUPPORTED)
+        {
+          USBH_UsrLog("Product : N/A");
+          phost->EnumState = ENUM_GET_SERIALNUM_STRING_DESC;
+
+#if (USBH_USE_OS == 1U)
+          phost->os_msg = (uint32_t)USBH_STATE_CHANGED_EVENT;
+#if (osCMSIS < 0x20000U)
+          (void)osMessagePut(phost->os_event, phost->os_msg, 0U);
+#else
+          (void)osMessageQueuePut(phost->os_event, &phost->os_msg, 0U, NULL);
+#endif
+#endif
     }
     else
     {
-      USBH_DbgLog("Product : N/A");
+          /* .. */
+        }
+      }
+      else
+      {
+        USBH_UsrLog("Product : N/A");
       phost->EnumState = ENUM_GET_SERIALNUM_STRING_DESC;
 #if (USBH_USE_OS == 1)
     osMessagePut ( phost->os_event, USBH_STATE_CHANGED_EVENT, 0);
@@ -799,21 +996,30 @@ static USBH_StatusTypeDef USBH_HandleEnum (USBH_HandleTypeDef *phost)
     break;
 
   case ENUM_GET_SERIALNUM_STRING_DESC:
-    if (phost->device.DevDesc.iSerialNumber != 0)
-    { /* Check that Serial number string is available */
-      if ( USBH_Get_StringDesc(phost,
-                               phost->device.DevDesc.iSerialNumber,
-                               phost->device.Data,
-                               0xff) == USBH_OK)
+      if (phost->device.DevDesc.iSerialNumber != 0U)
+      {
+        /* Check that Serial number string is available */
+        ReqStatus = USBH_Get_StringDesc(phost, phost->device.DevDesc.iSerialNumber,
+                                        phost->device.Data, 0xFFU);
+        if (ReqStatus == USBH_OK)
       {
         /* User callback for Serial number string */
          USBH_DbgLog("Serial Number : %s",  (char *)phost->device.Data);
         Status = USBH_OK;
       }
+        else if (ReqStatus == USBH_NOT_SUPPORTED)
+        {
+          USBH_UsrLog("Serial Number : N/A");
+          Status = USBH_OK;
     }
     else
     {
-      USBH_DbgLog("Serial Number : N/A");
+          /* .. */
+        }
+      }
+      else
+      {
+        USBH_UsrLog("Serial Number : N/A");
       Status = USBH_OK;
 #if (USBH_USE_OS == 1)
     osMessagePut ( phost->os_event, USBH_STATE_CHANGED_EVENT, 0);
@@ -862,6 +1068,47 @@ void  USBH_HandleSof  (USBH_HandleTypeDef *phost)
     phost->pActiveClass->SOFProcess(phost);
   }
 }
+
+
+/**
+  * @brief  USBH_PortEnabled
+  *         Port Enabled
+  * @param  phost: Host Handle
+  * @retval None
+  */
+void USBH_LL_PortEnabled(USBH_HandleTypeDef *phost)
+{
+  phost->device.PortEnabled = 1U;
+  return;
+}
+
+
+/**
+  * @brief  USBH_LL_PortDisabled
+  *         Port Disabled
+  * @param  phost: Host Handle
+  * @retval None
+  */
+void USBH_LL_PortDisabled(USBH_HandleTypeDef *phost)
+{
+  phost->device.PortEnabled = 0U;
+
+  return;
+}
+
+
+/**
+  * @brief  HCD_IsPortEnabled
+  *         Is Port Enabled
+  * @param  phost: Host Handle
+  * @retval None
+  */
+uint8_t USBH_IsPortEnabled(USBH_HandleTypeDef *phost)
+{
+  return (phost->device.PortEnabled);
+}
+
+
 /**
   * @brief  USBH_LL_Connect
   *         Handle USB Host connexion event
@@ -870,23 +1117,9 @@ void  USBH_HandleSof  (USBH_HandleTypeDef *phost)
   */
 USBH_StatusTypeDef  USBH_LL_Connect  (USBH_HandleTypeDef *phost)
 {
-  if(phost->gState == HOST_IDLE )
-  {
-    phost->device.is_connected = 1;
-
-    if(phost->pUser != NULL)
-    {
-      phost->pUser(phost, HOST_USER_CONNECTION);
-    }
-  }
-  else if(phost->gState == HOST_DEV_WAIT_FOR_ATTACHMENT )
-  {
-    phost->gState = HOST_DEV_ATTACHED ;
-  }
-#if (USBH_USE_OS == 1)
-  osMessagePut ( phost->os_event, USBH_PORT_EVENT, 0);
-#endif
-
+  phost->device.is_connected = 1U;
+  phost->device.is_disconnected = 0U;
+  phost->device.is_ReEnumerated = 0U;
   return USBH_OK;
 }
 
@@ -898,29 +1131,17 @@ USBH_StatusTypeDef  USBH_LL_Connect  (USBH_HandleTypeDef *phost)
   */
 USBH_StatusTypeDef  USBH_LL_Disconnect  (USBH_HandleTypeDef *phost)
 {
+  /* update device connection states */
+  phost->device.is_disconnected = 1U;
+  phost->device.is_connected = 0U;
+  phost->device.PortEnabled = 0U;
+
   /*Stop Host */
   USBH_LL_Stop(phost);
 
   /* FRee Control Pipes */
   USBH_FreePipe  (phost, phost->Control.pipe_in);
   USBH_FreePipe  (phost, phost->Control.pipe_out);
-
-  phost->device.is_connected = 0;
-
-  if(phost->pUser != NULL)
-  {
-    phost->pUser(phost, HOST_USER_DISCONNECTION);
-  }
-  USBH_UsrLog("USB Device disconnected");
-
-  /* Start the low level driver  */
-  USBH_LL_Start(phost);
-
-  phost->gState = HOST_DEV_DISCONNECTED;
-
-#if (USBH_USE_OS == 1)
-  osMessagePut ( phost->os_event, USBH_PORT_EVENT, 0);
-#endif
 
   return USBH_OK;
 }

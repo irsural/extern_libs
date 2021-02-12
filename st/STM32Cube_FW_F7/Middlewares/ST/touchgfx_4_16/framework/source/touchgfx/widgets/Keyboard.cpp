@@ -1,6 +1,6 @@
 /**
   ******************************************************************************
-  * This file is part of the TouchGFX 4.15.0 distribution.
+  * This file is part of the TouchGFX 4.16.0 distribution.
   *
   * <h2><center>&copy; Copyright (c) 2020 STMicroelectronics.
   * All rights reserved.</center></h2>
@@ -162,6 +162,11 @@ void Keyboard::draw(const Rect& invalidatedArea) const
 void Keyboard::handleClickEvent(const ClickEvent& evt)
 {
     ClickEvent::ClickEventType type = evt.getType();
+    if (type == ClickEvent::RELEASED && cancelIsEmitted)
+    {
+        cancelIsEmitted = false;
+        return;
+    }
     int16_t x = evt.getX();
     int16_t y = evt.getY();
     Rect toDraw;
@@ -180,17 +185,10 @@ void Keyboard::handleClickEvent(const ClickEvent& evt)
 
         if ((type == ClickEvent::RELEASED) && callbackArea.callback->isValid())
         {
-            if (cancelIsEmitted)
+            callbackArea.callback->execute();
+            if (keyListener)
             {
-                cancelIsEmitted = false;
-            }
-            else
-            {
-                callbackArea.callback->execute();
-                if (keyListener)
-                {
-                    keyListener->execute(0);
-                }
+                keyListener->execute(0);
             }
         }
     }
@@ -198,44 +196,34 @@ void Keyboard::handleClickEvent(const ClickEvent& evt)
     {
         Keyboard::Key key = getKeyForCoordinates(x, y);
 
-        if (key.keyId != 0)
+        if (type == ClickEvent::PRESSED)
         {
-            if (type == ClickEvent::PRESSED)
-            {
-                highlightImage.setXY(key.keyArea.x, key.keyArea.y);
-                highlightImage.setBitmap(Bitmap(key.highlightBitmapId));
-                highlightImage.setVisible(true);
-                toDraw = highlightImage.getRect();
-                invalidateRect(toDraw);
-            }
+            highlightImage.setXY(key.keyArea.x, key.keyArea.y);
+            highlightImage.setBitmap(Bitmap(key.highlightBitmapId));
+            highlightImage.setVisible(true);
+            toDraw = highlightImage.getRect();
+            invalidateRect(toDraw);
+        }
 
-            if (type == ClickEvent::RELEASED)
+        if (type == ClickEvent::RELEASED)
+        {
+            if (key.keyId != 0 && buffer)
             {
-                if (cancelIsEmitted)
+                Unicode::UnicodeChar c = getCharForKey(key.keyId);
+                if (c != 0)
                 {
-                    cancelIsEmitted = false;
-                }
-                else
-                {
-                    if (buffer)
+                    uint16_t prevBufferPosition = bufferPosition;
+                    if (bufferPosition < (bufferSize - 1))
                     {
-                        Unicode::UnicodeChar c = getCharForKey(key.keyId);
-                        if (c != 0)
+                        buffer[bufferPosition++] = c;
+                        buffer[bufferPosition] = 0;
+                    }
+                    if (prevBufferPosition != bufferPosition)
+                    {
+                        enteredText.invalidate();
+                        if (keyListener)
                         {
-                            uint16_t prevBufferPosition = bufferPosition;
-                            if (bufferPosition < (bufferSize - 1))
-                            {
-                                buffer[bufferPosition++] = c;
-                                buffer[bufferPosition] = 0;
-                            }
-                            if (prevBufferPosition != bufferPosition)
-                            {
-                                enteredText.invalidate();
-                                if (keyListener)
-                                {
-                                    keyListener->execute(c);
-                                }
-                            }
+                            keyListener->execute(c);
                         }
                     }
                 }
@@ -256,12 +244,12 @@ void Keyboard::handleClickEvent(const ClickEvent& evt)
     }
 }
 
-void Keyboard::handleDragEvent(const DragEvent& evt)
+void Keyboard::handleDragEvent(const DragEvent& event)
 {
-    if (highlightImage.isVisible() && (!highlightImage.getRect().intersect(static_cast<int16_t>(evt.getNewX()), static_cast<int16_t>(evt.getNewY()))) && (!cancelIsEmitted))
+    if (highlightImage.isVisible() && (!highlightImage.getRect().intersect(static_cast<int16_t>(event.getNewX()), static_cast<int16_t>(event.getNewY()))) && (!cancelIsEmitted))
     {
         // Send a CANCEL click event, if user has dragged out of currently pressed/highlighted key.
-        touchgfx::ClickEvent cancelEvent(touchgfx::ClickEvent::CANCEL, static_cast<int16_t>(evt.getOldX()), static_cast<int16_t>(evt.getOldY()));
+        ClickEvent cancelEvent(ClickEvent::CANCEL, static_cast<int16_t>(event.getOldX()), static_cast<int16_t>(event.getOldY()));
         handleClickEvent(cancelEvent);
     }
 }

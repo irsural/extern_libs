@@ -1,6 +1,6 @@
 /**
   ******************************************************************************
-  * This file is part of the TouchGFX 4.15.0 distribution.
+  * This file is part of the TouchGFX 4.16.0 distribution.
   *
   * <h2><center>&copy; Copyright (c) 2020 STMicroelectronics.
   * All rights reserved.</center></h2>
@@ -29,24 +29,23 @@ void PainterGRAY2::render(uint8_t* ptr,
     currentX = x + areaOffsetX;
     currentY = y + areaOffsetY;
     x += xAdjust;
-    uint8_t totalAlpha = LCD::div255(widgetAlpha * painterAlpha);
+    const uint8_t totalAlpha = LCD::div255(widgetAlpha * painterAlpha);
     if (totalAlpha == 0xFF)
     {
         do
         {
-            uint8_t alpha = *covers;
-            covers++;
+            const uint8_t alpha = *covers++;
 
             if (alpha == 0xFF)
             {
                 // Render a solid pixel
-                LCD2setPixel(ptr, x, painterGray);
+                LCD2bpp::setPixel(ptr, x, painterGray);
             }
             else
             {
-                uint8_t ialpha = 0xFF - alpha;
-                uint8_t p_gray = LCD2getPixel(ptr, x);
-                LCD2setPixel(ptr, x, LCD::div255((painterGray * alpha + p_gray * ialpha) * 0x55) >> 6);
+                const uint8_t ialpha = 0xFF - alpha;
+                const uint8_t p_gray = LCD2bpp::getPixel(ptr, x);
+                LCD2bpp::setPixel(ptr, x, LCD::div255((painterGray * alpha + p_gray * ialpha) * 0x55) >> 6);
             }
             currentX++;
             x++;
@@ -56,12 +55,11 @@ void PainterGRAY2::render(uint8_t* ptr,
     {
         do
         {
-            uint8_t alpha = LCD::div255((*covers) * totalAlpha);
-            uint8_t ialpha = 0xFF - alpha;
-            covers++;
+            const uint8_t alpha = LCD::div255((*covers++) * totalAlpha);
+            const uint8_t ialpha = 0xFF - alpha;
 
-            uint8_t p_gray = LCD2getPixel(ptr, x);
-            LCD2setPixel(ptr, x, LCD::div255((painterGray * alpha + p_gray * ialpha) * 0x55) >> 6);
+            const uint8_t p_gray = LCD2bpp::getPixel(ptr, x);
+            LCD2bpp::setPixel(ptr, x, LCD::div255((painterGray * alpha + p_gray * ialpha) * 0x55) >> 6);
             currentX++;
             x++;
         } while (--count != 0);

@@ -1,6 +1,6 @@
 /**
   ******************************************************************************
-  * This file is part of the TouchGFX 4.15.0 distribution.
+  * This file is part of the TouchGFX 4.16.0 distribution.
   *
   * <h2><center>&copy; Copyright (c) 2020 STMicroelectronics.
   * All rights reserved.</center></h2>
@@ -18,12 +18,11 @@
 
 namespace touchgfx
 {
-void Image::setBitmap(const Bitmap& bmp)
+void Image::setBitmap(const Bitmap& bitmap)
 {
-    bitmap = bmp;
+    this->bitmap = bitmap;
     // When setting bitmap, adjust size of this widget to match.
-    setWidth(bitmap.getWidth());
-    setHeight(bitmap.getHeight());
+    setWidthHeight(bitmap);
 }
 
 void Image::draw(const Rect& invalidatedArea) const

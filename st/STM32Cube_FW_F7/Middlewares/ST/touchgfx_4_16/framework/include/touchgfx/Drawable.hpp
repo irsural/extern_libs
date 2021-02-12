@@ -1,6 +1,6 @@
 /**
   ******************************************************************************
-  * This file is part of the TouchGFX 4.15.0 distribution.
+  * This file is part of the TouchGFX 4.16.0 distribution.
   *
   * <h2><center>&copy; Copyright (c) 2020 STMicroelectronics.
   * All rights reserved.</center></h2>
@@ -126,6 +126,17 @@ public:
     }
 
     /**
+     * Function for obtaining the first child of this drawable if any.
+     *
+     * @return A pointer on the first child drawable if any.
+     * @see Container::getFirstChild
+     */
+    virtual Drawable* getFirstChild()
+    {
+        return 0;
+    }
+
+    /**
      * Helper function for obtaining the largest solid rect (as implemented by
      * getSolidRect()) expressed in absolute coordinates. Will recursively traverse to the
      * root of the tree to find the proper location of the rectangle on the display.
@@ -204,11 +215,10 @@ public:
      *
      * @note For most Drawable widgets, changing this does normally not automatically yield a redraw.
      */
-    virtual void setPosition(int16_t x, int16_t y, int16_t width, int16_t height)
+    void setPosition(int16_t x, int16_t y, int16_t width, int16_t height)
     {
         setXY(x, y);
-        setWidth(width);
-        setHeight(height);
+        setWidthHeight(width, height);
     }
 
     /**
@@ -286,7 +296,7 @@ public:
      *
      * @note For most Drawable widgets, changing this does normally not automatically yield a redraw.
      */
-    virtual void setXY(int16_t x, int16_t y)
+    void setXY(int16_t x, int16_t y)
     {
         setX(x);
         setY(y);
@@ -327,7 +337,8 @@ public:
 
     /**
      * Defines the event handler interface for ClickEvents. The default implementation
-     * ignores the event. The event is only received if the Drawable is touchable and visible.
+     * ignores the event. The event is only received if the Drawable is touchable and
+     * visible.
      *
      * @param  evt The ClickEvent received from the HAL.
      */
@@ -337,7 +348,8 @@ public:
 
     /**
      * Defines the event handler interface for GestureEvents. The default implementation
-     * ignores the event. The event is only received if the Drawable is touchable and visible.
+     * ignores the event. The event is only received if the Drawable is touchable and
+     * visible.
      *
      * @param  evt The GestureEvent received from the HAL.
      */
@@ -346,8 +358,86 @@ public:
     }
 
     /**
+     * Sets the dimensions (width and height) of the Drawable without changing the x and y
+     * coordinates).
+     *
+     * @param  width  The width.
+     * @param  height The height.
+     */
+    void setWidthHeight(int16_t width, int16_t height)
+    {
+        setWidth(width);
+        setHeight(height);
+    }
+
+    /**
+     * Sets the position of the Drawable to the same as the given Drawable. This will copy
+     * the x, y, width and height.
+     *
+     * @param  drawable The drawable.
+     *
+     * @see setPosition(int16_t,int16_t,int16_t,int16_t)
+     */
+    void setPosition(const Drawable& drawable)
+    {
+        setPosition(drawable.getX(), drawable.getY(), drawable.getWidth(), drawable.getHeight());
+    }
+
+    /**
+     * Sets the x and y coordinates of this Drawable.
+     *
+     * @param  drawable The Drawable to copy the x and y coordinates from.
+     *
+     * @see setXY(int16_t,int16_t)
+     */
+    void setXY(const Drawable& drawable)
+    {
+        setXY(drawable.getX(), drawable.getY());
+    }
+
+    /**
+     * Sets the dimensions (width and height) of the Drawable without changing the x and y
+     * coordinates).
+     *
+     * @param  drawable The Drawable to copy the width and height from.
+     *
+     * @see setWidthHeight(int16_t,int16_t)
+     */
+    void setWidthHeight(const Drawable& drawable)
+    {
+        setWidthHeight(drawable.getWidth(), drawable.getHeight());
+    }
+
+    /**
+     * Sets the dimensions (width and height) of the Drawable without changing the x and y
+     * coordinates).
+     *
+     * @param  bitmap The Bitmap to copy the width and height from.
+     *
+     * @see setWidthHeight(int16_t,int16_t)
+     */
+    void setWidthHeight(const Bitmap& bitmap)
+    {
+        setWidthHeight(bitmap.getWidth(), bitmap.getHeight());
+    }
+
+    /**
+     * Sets the dimensions (width and height) of the Drawable without changing the x and y
+     * coordinates).
+     *
+     * @param  rect The Rect to copy the width and height from.
+     *
+     * @see setWidthHeight(int16_t,int16_t)
+     */
+    void setWidthHeight(const Rect& rect)
+    {
+        setWidthHeight(rect.width, rect.height);
+    }
+
+    /**
      * Defines the event handler interface for DragEvents. The default implementation
-     * ignores the event. The event is only received if the drawable is touchable and visible.
+     * ignores the event. The event is only received if the drawable is touchable and
+     * visible.
      *
      * @param  evt The DragEvent received from the HAL.
      */

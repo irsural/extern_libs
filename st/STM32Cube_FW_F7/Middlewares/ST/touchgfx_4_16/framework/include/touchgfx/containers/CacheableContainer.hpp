@@ -1,6 +1,6 @@
 /**
   ******************************************************************************
-  * This file is part of the TouchGFX 4.15.0 distribution.
+  * This file is part of the TouchGFX 4.16.0 distribution.
   *
   * <h2><center>&copy; Copyright (c) 2020 STMicroelectronics.
   * All rights reserved.</center></h2>
@@ -43,6 +43,8 @@ namespace touchgfx
 class CacheableContainer : public Container
 {
 public:
+    CacheableContainer();
+
     /**
      * Set the dynamic bitmap into which the container content will be rendered. The format
      * of the bitmap must be the same as the current LCD or the same as the auxiliary LCD
@@ -50,9 +52,18 @@ public:
      *
      * @param  bitmapId Id of the dynamic bitmap to serve as a render target.
      *
-     * @see updateCache, HAL::setAuxiliaryLCD
+     * @see updateCache, getCacheBitmap, HAL::setAuxiliaryLCD
      */
     void setCacheBitmap(BitmapId bitmapId);
+
+    /**
+     * Get the dynamic bitmap used by the CacheableContainer.
+     *
+     * @return the id of the assigned bitmap or BITMAP_INVALID if no bitmap has been assigned.
+     *
+     * @see setCacheBitmap
+     */
+    BitmapId getCacheBitmap() const;
 
     /**
      * Render the container into the attached dynamic bitmap.
@@ -89,6 +100,15 @@ public:
      *                             redraw, invalidatedArea will be (0, 0, width, height).
      */
     virtual void invalidateRect(Rect& invalidatedArea) const;
+
+    /**
+     * Set the solid area on the dynamic bitmap assigned to the CacheableContainer.
+     *
+     * @param [in] rect The rectangle of th CacheableContainer that is solid.
+     *
+     * @return true if the operation succeeds, false otherwise.
+     */
+    bool setSolidRect(const Rect& rect);
 
     /**
      * Queries the CacheableContainer whether any child widget has been invalidated.

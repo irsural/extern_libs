@@ -1,6 +1,6 @@
 /**
   ******************************************************************************
-  * This file is part of the TouchGFX 4.15.0 distribution.
+  * This file is part of the TouchGFX 4.16.0 distribution.
   *
   * <h2><center>&copy; Copyright (c) 2020 STMicroelectronics.
   * All rights reserved.</center></h2>
@@ -62,8 +62,7 @@ public:
     {
         up = bmpReleased;
         down = bmpPressed;
-        AbstractButtonContainer::setWidth(down.getWidth());
-        AbstractButtonContainer::setHeight(down.getHeight());
+        ImageButtonStyle::setWidthHeight(down);
 
         handlePressedUpdated();
     }

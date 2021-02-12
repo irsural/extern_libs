@@ -1,6 +1,6 @@
 /**
   ******************************************************************************
-  * This file is part of the TouchGFX 4.15.0 distribution.
+  * This file is part of the TouchGFX 4.16.0 distribution.
   *
   * <h2><center>&copy; Copyright (c) 2020 STMicroelectronics.
   * All rights reserved.</center></h2>
@@ -72,7 +72,7 @@ void AnimatedImage::handleTickEvent()
     }
 }
 
-void AnimatedImage::startAnimation(const bool& rev, const bool& reset, const bool& loop)
+void AnimatedImage::startAnimation(const bool rev, const bool reset /*= false*/, const bool loop /*= false*/)
 {
     if ((startId != BITMAP_INVALID) && (endId != BITMAP_INVALID))
     {
@@ -125,11 +125,21 @@ void AnimatedImage::pauseAnimation()
     }
 }
 
+void AnimatedImage::setBitmap(const Bitmap& bitmap)
+{
+    startId = bitmap.getId();
+    Image::setBitmap(bitmap);
+}
+
+void AnimatedImage::setBitmapEnd(const Bitmap& bitmap)
+{
+    endId = bitmap.getId();
+}
+
 void AnimatedImage::setBitmaps(BitmapId start, BitmapId end)
 {
-    startId = start;
-    endId = end;
-    Image::setBitmap(Bitmap(startId));
+    setBitmap(start);
+    setBitmapEnd(end);
 }
 
 void AnimatedImage::setUpdateTicksInterval(uint8_t updateInterval)

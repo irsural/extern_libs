@@ -1,6 +1,6 @@
 /**
   ******************************************************************************
-  * This file is part of the TouchGFX 4.15.0 distribution.
+  * This file is part of the TouchGFX 4.16.0 distribution.
   *
   * <h2><center>&copy; Copyright (c) 2020 STMicroelectronics.
   * All rights reserved.</center></h2>
@@ -20,18 +20,10 @@
 
 namespace touchgfx
 {
-ScalableImage::ScalableImage()
-    : Widget(),
-      currentScalingAlgorithm(BILINEAR_INTERPOLATION),
-      alpha(255)
+ScalableImage::ScalableImage(const Bitmap& bitmap /*= Bitmap() */)
+    : Image(bitmap),
+      currentScalingAlgorithm(BILINEAR_INTERPOLATION)
 {
-}
-
-void ScalableImage::setBitmap(const Bitmap& bmp)
-{
-    bitmap = bmp;
-    setWidth(bitmap.getWidth());
-    setHeight(bitmap.getHeight());
 }
 
 void ScalableImage::setScalingAlgorithm(ScalingAlgorithm algorithm)
@@ -114,7 +106,7 @@ void ScalableImage::draw(const Rect& invalidatedArea) const
     {
         return;
     }
-    uint16_t* fb = HAL::getInstance()->lockFrameBuffer();
+    uint16_t* fb = 0;
 
     float triangleXs[3];
     float triangleYs[3];
@@ -189,8 +181,6 @@ void ScalableImage::draw(const Rect& invalidatedArea) const
     triangleVs[2] = textureV3;
 
     drawTriangle(invalidatedArea, fb, triangleXs, triangleYs, triangleZs, triangleUs, triangleVs);
-
-    HAL::getInstance()->unlockFrameBuffer();
 }
 
 Rect ScalableImage::getSolidRect() const

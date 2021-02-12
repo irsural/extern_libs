@@ -1,6 +1,6 @@
 /**
   ******************************************************************************
-  * This file is part of the TouchGFX 4.15.0 distribution.
+  * This file is part of the TouchGFX 4.16.0 distribution.
   *
   * <h2><center>&copy; Copyright (c) 2020 STMicroelectronics.
   * All rights reserved.</center></h2>
@@ -47,12 +47,12 @@ CWRUtil::Q5 AbstractGraphElement::valueToScreenYQ5(const AbstractDataGraph* grap
     return graph->valueToScreenYQ5(y);
 }
 
-touchgfx::CWRUtil::Q5 AbstractGraphElement::indexToScreenXQ5(const AbstractDataGraph* graph, int16_t index) const
+CWRUtil::Q5 AbstractGraphElement::indexToScreenXQ5(const AbstractDataGraph* graph, int16_t index) const
 {
     return graph->indexToScreenXQ5(index);
 }
 
-touchgfx::CWRUtil::Q5 AbstractGraphElement::indexToScreenYQ5(const AbstractDataGraph* graph, int16_t index) const
+CWRUtil::Q5 AbstractGraphElement::indexToScreenYQ5(const AbstractDataGraph* graph, int16_t index) const
 {
     return graph->indexToScreenYQ5(index);
 }

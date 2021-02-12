@@ -1,6 +1,6 @@
 /**
   ******************************************************************************
-  * This file is part of the TouchGFX 4.15.0 distribution.
+  * This file is part of the TouchGFX 4.16.0 distribution.
   *
   * <h2><center>&copy; Copyright (c) 2020 STMicroelectronics.
   * All rights reserved.</center></h2>
@@ -97,22 +97,6 @@ public:
         return moveAnimationDelay;
     }
 
-    ///@cond
-    /**
-     * Gets whether or not the move animation is running.
-     *
-     * @return true if the move animation is running.
-     *
-     * @deprecated Use MoveAnimator::isMoveAnimationRunning().
-     */
-    TOUCHGFX_DEPRECATED(
-        "Use MoveAnimator::isMoveAnimationRunning().",
-        bool isRunning())
-    {
-        return isMoveAnimationRunning();
-    }
-    ///@endcond
-
     /**
      * Gets whether or not the move animation is running.
      *
@@ -176,7 +160,6 @@ public:
         }
     }
 
-protected:
     /** The tick handler that handles the actual animation steps. */
     virtual void handleTickEvent()
     {
@@ -185,30 +168,24 @@ protected:
         nextMoveAnimationStep();
     }
 
+protected:
     /** Execute next step in move animation and stop the timer if the animation has finished. */
     void nextMoveAnimationStep()
     {
         if (moveAnimationRunning)
         {
-            if (moveAnimationCounter < moveAnimationDelay)
+            moveAnimationCounter++;
+            if (moveAnimationCounter >= moveAnimationDelay)
             {
-                // Just wait for the delay time to pass
-                moveAnimationCounter++;
-            }
-            else
-            {
-                if (moveAnimationCounter <= (uint32_t)(moveAnimationDelay + moveAnimationDuration))
-                {
-                    // Adjust the used animationCounter for the startup delay
-                    uint32_t actualAnimationCounter = moveAnimationCounter - moveAnimationDelay;
+                // Adjust the used animationCounter for the startup delay
+                uint32_t actualAnimationCounter = moveAnimationCounter - moveAnimationDelay;
 
-                    int16_t deltaX = moveAnimationXEquation(actualAnimationCounter, 0, moveAnimationEndX - moveAnimationStartX, moveAnimationDuration);
-                    int16_t deltaY = moveAnimationYEquation(actualAnimationCounter, 0, moveAnimationEndY - moveAnimationStartY, moveAnimationDuration);
+                int16_t deltaX = moveAnimationXEquation(actualAnimationCounter, 0, moveAnimationEndX - moveAnimationStartX, moveAnimationDuration);
+                int16_t deltaY = moveAnimationYEquation(actualAnimationCounter, 0, moveAnimationEndY - moveAnimationStartY, moveAnimationDuration);
 
-                    T::moveTo(moveAnimationStartX + deltaX, moveAnimationStartY + deltaY);
-                    moveAnimationCounter++;
-                }
-                if (moveAnimationCounter > (uint32_t)(moveAnimationDelay + moveAnimationDuration))
+                T::moveTo(moveAnimationStartX + deltaX, moveAnimationStartY + deltaY);
+
+                if (moveAnimationCounter >= (uint32_t)(moveAnimationDelay + moveAnimationDuration))
                 {
                     // End of animation
                     moveAnimationRunning = false;
@@ -224,7 +201,6 @@ protected:
         }
     }
 
-protected:
     bool moveAnimationRunning;             ///< True if the animation is running
     uint16_t moveAnimationCounter;         ///< Counter that is equal to the current step in the animation
     uint16_t moveAnimationDelay;           ///< The delay applied before animation start. Expressed in ticks.

@@ -1,6 +1,6 @@
 /**
   ******************************************************************************
-  * This file is part of the TouchGFX 4.15.0 distribution.
+  * This file is part of the TouchGFX 4.16.0 distribution.
   *
   * <h2><center>&copy; Copyright (c) 2020 STMicroelectronics.
   * All rights reserved.</center></h2>
@@ -83,6 +83,7 @@ Canvas::Canvas(const CanvasWidget* _widget, const Rect& invalidatedArea)
         break;
     case Bitmap::BW_RLE:
     case Bitmap::A4:
+    case Bitmap::CUSTOM:
         assert(0 && "Unsupported bit depth");
         break;
     }

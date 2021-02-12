@@ -1,6 +1,6 @@
 /**
   ******************************************************************************
-  * This file is part of the TouchGFX 4.15.0 distribution.
+  * This file is part of the TouchGFX 4.16.0 distribution.
   *
   * <h2><center>&copy; Copyright (c) 2020 STMicroelectronics.
   * All rights reserved.</center></h2>
@@ -63,30 +63,13 @@ public:
      */
     virtual AbstractPainter& getPainter() const;
 
-    /**
-     * Sets the alpha value for the CanvasWidget. The value can be from 255 (completely solid)
-     * to 0 (completely transparent).
-     *
-     * @param  newAlpha The alpha value.
-     *
-     * @see getAlpha
-     *
-     * @note The painter set with setPainter() can also have an alpha value. The alpha value of
-     *       the painter and the alpha value of the CanvasWidget are combined to a single alpha
-     *       value.
-     */
+    /** @copydoc Image::setAlpha */
     virtual void setAlpha(uint8_t newAlpha)
     {
         alpha = newAlpha;
     }
 
-    /**
-     * Returns the current alpha value.
-     *
-     * @return Gets the current alpha value of the Box.
-     *
-     * @see setAlpha
-     */
+    /** @copydoc Image::getAlpha() */
     virtual uint8_t getAlpha() const
     {
         return alpha;
@@ -147,6 +130,16 @@ public:
      *       lines will not be drawn and may cause strange display artifacts.
      */
     virtual Rect getSolidRect() const;
+
+    /**
+     * Resets the maximum render lines. The maximum render lines is decreates if the
+     * rendering buffer is found to be too small to render a complex outline. This is done
+     * to speed up subsequent draws by not having to draw the outline in vain (as was done
+     * previously) to force the outline to be drawn in smaller blocks. The
+     * resetMaxRenderLines() will try to render the entire outline in one go on the next
+     * call to draw().
+     */
+    void resetMaxRenderLines();
 
     /**
      * Draw canvas widget for the given invalidated area. Similar to draw(), but might be

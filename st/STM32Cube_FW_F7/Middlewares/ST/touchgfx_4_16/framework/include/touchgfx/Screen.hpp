@@ -1,6 +1,6 @@
 /**
   ******************************************************************************
-  * This file is part of the TouchGFX 4.15.0 distribution.
+  * This file is part of the TouchGFX 4.16.0 distribution.
   *
   * <h2><center>&copy; Copyright (c) 2020 STMicroelectronics.
   * All rights reserved.</center></h2>
@@ -22,7 +22,6 @@
 #define SCREEN_HPP
 
 #include <touchgfx/Application.hpp>
-#include <touchgfx/JSMOCHelper.hpp>
 #include <touchgfx/containers/Container.hpp>
 #include <touchgfx/events/ClickEvent.hpp>
 #include <touchgfx/events/DragEvent.hpp>
@@ -114,7 +113,7 @@ public:
      * Base version does nothing, but place any screen specific cleanup code in an
      * overridden version.
      *
-     * @see touchgfx::Application::switchScreen
+     * @see Application::switchScreen
      */
     virtual void tearDownScreen()
     {

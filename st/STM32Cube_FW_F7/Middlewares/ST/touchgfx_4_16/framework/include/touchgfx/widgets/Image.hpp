@@ -1,6 +1,6 @@
 /**
   ******************************************************************************
-  * This file is part of the TouchGFX 4.15.0 distribution.
+  * This file is part of the TouchGFX 4.16.0 distribution.
   *
   * <h2><center>&copy; Copyright (c) 2020 STMicroelectronics.
   * All rights reserved.</center></h2>
@@ -47,24 +47,25 @@ public:
      * (undefined) if none is specified. If a Bitmap is passed to the constructor, the width
      * and height of this widget is set to those of the bitmap.
      *
-     * @param  bmp (Optional) The bitmap to display.
+     * @param  bitmap (Optional) The bitmap to display.
      *
      * @see setBitmap
      */
-    Image(const Bitmap& bmp = Bitmap())
+    Image(const Bitmap& bitmap = Bitmap())
         : Widget(), alpha(255)
     {
-        setBitmap(bmp);
+        setBitmap(bitmap);
     }
 
     /**
      * Sets the bitmap for this Image and updates the width and height of this widget to
      * match those of the Bitmap.
      *
-     * @param  bmp The bitmap instance.
+     * @param  bitmap The bitmap instance.
+     *
      * @note The user code must call invalidate() in order to update the image on the display.
      */
-    virtual void setBitmap(const Bitmap& bmp);
+    virtual void setBitmap(const Bitmap& bitmap);
 
     /**
      * Sets the opacity (alpha value). This can be used to fade it away by gradually
@@ -84,11 +85,23 @@ public:
     virtual void draw(const Rect& invalidatedArea) const;
 
     /**
+     * Gets the Bitmap currently assigned to the Image widget.
+     *
+     * @return The current Bitmap of the widget.
+     */
+    Bitmap getBitmap() const
+    {
+        return bitmap;
+    }
+
+    /**
      * Gets the BitmapId currently assigned to the Image widget.
      *
      * @return The current BitmapId of the widget.
+     *
+     * @deprecated Use getBitmap() which is automatically converted to BitmapId on demand.
      */
-    BitmapId getBitmap() const
+    BitmapId getBitmapId() const
     {
         return bitmap.getId();
     }
@@ -109,8 +122,8 @@ public:
     virtual Rect getSolidRect() const;
 
 protected:
-    Bitmap bitmap;             ///< The Bitmap to display.
-    uint8_t alpha;             ///< The Alpha for this image.
+    Bitmap bitmap; ///< The Bitmap to display.
+    uint8_t alpha; ///< The Alpha for this image.
 };
 
 } // namespace touchgfx

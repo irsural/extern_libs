@@ -1,6 +1,6 @@
 /**
   ******************************************************************************
-  * This file is part of the TouchGFX 4.15.0 distribution.
+  * This file is part of the TouchGFX 4.16.0 distribution.
   *
   * <h2><center>&copy; Copyright (c) 2020 STMicroelectronics.
   * All rights reserved.</center></h2>
@@ -177,7 +177,7 @@ public:
      */
     virtual uint16_t getIndicatorMin() const
     {
-        return indicatorMaxPosition;
+        return indicatorMinPosition;
     }
 
     /**
@@ -273,6 +273,10 @@ public:
         return currentValue;
     }
 
+    virtual void handleClickEvent(const ClickEvent& event);
+
+    virtual void handleDragEvent(const DragEvent& event);
+
 protected:
     /** Values that represent slider orientations. */
     enum SliderOrientation
@@ -299,10 +303,6 @@ protected:
     GenericCallback<const Slider&, int>* startValueCallback; ///< The start value callback (called  when an interaction with the indicator is initiated)
     GenericCallback<const Slider&, int>* stopValueCallback;  ///< The stop value callback (called when an interaction with the indicator ends)
     GenericCallback<const Slider&, int>* newValueCallback;   ///< The new value callback (called when the indicator is moved)
-
-    virtual void handleClickEvent(const ClickEvent& evt);
-
-    virtual void handleDragEvent(const DragEvent& evt);
 
     /**
      * Updates the indicator position described by position. Calls the

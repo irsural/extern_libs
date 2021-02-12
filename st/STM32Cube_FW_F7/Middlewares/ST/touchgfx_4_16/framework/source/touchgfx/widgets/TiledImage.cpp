@@ -1,6 +1,6 @@
 /**
   ******************************************************************************
-  * This file is part of the TouchGFX 4.15.0 distribution.
+  * This file is part of the TouchGFX 4.16.0 distribution.
   *
   * <h2><center>&copy; Copyright (c) 2020 STMicroelectronics.
   * All rights reserved.</center></h2>
@@ -18,10 +18,10 @@
 
 namespace touchgfx
 {
-void TiledImage::setBitmap(const Bitmap& bmp)
+void TiledImage::setBitmap(const Bitmap& bitmap)
 {
-    Image::setBitmap(bmp);
-    // Make sure the xOffset and yOffset are correct
+    Image::setBitmap(bitmap);
+    // Make sure the xOffset and yOffset are correct (in range)
     setOffset(xOffset, yOffset);
 }
 

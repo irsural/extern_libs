@@ -1,6 +1,6 @@
 /**
   ******************************************************************************
-  * This file is part of the TouchGFX 4.15.0 distribution.
+  * This file is part of the TouchGFX 4.16.0 distribution.
   *
   * <h2><center>&copy; Copyright (c) 2020 STMicroelectronics.
   * All rights reserved.</center></h2>
@@ -36,8 +36,7 @@ void AbstractPainterARGB2222::render(uint8_t* ptr,
             uint8_t red, green, blue, alpha;
             if (renderNext(red, green, blue, alpha))
             {
-                uint8_t combinedAlpha = LCD::div255((*covers) * LCD::div255(alpha * widgetAlpha));
-                covers++;
+                const uint8_t combinedAlpha = LCD::div255((*covers) * LCD::div255(alpha * widgetAlpha));
 
                 if (combinedAlpha == 0xFF) // max alpha=255 on "*covers" and max alpha=255 on "widgetAlpha"
                 {
@@ -46,16 +45,17 @@ void AbstractPainterARGB2222::render(uint8_t* ptr,
                 }
                 else
                 {
-                    uint8_t ialpha = 0xFF - combinedAlpha;
-                    uint8_t p_red = LCD8bpp_ARGB2222::getRedFromColor(*p);
-                    uint8_t p_green = LCD8bpp_ARGB2222::getGreenFromColor(*p);
-                    uint8_t p_blue = LCD8bpp_ARGB2222::getBlueFromColor(*p);
+                    const uint8_t ialpha = 0xFF - combinedAlpha;
+                    const uint8_t p_red = LCD8bpp_ARGB2222::getRedFromColor(*p);
+                    const uint8_t p_green = LCD8bpp_ARGB2222::getGreenFromColor(*p);
+                    const uint8_t p_blue = LCD8bpp_ARGB2222::getBlueFromColor(*p);
                     renderPixel(p,
                                 LCD::div255(red * combinedAlpha + p_red * ialpha),
                                 LCD::div255(green * combinedAlpha + p_green * ialpha),
                                 LCD::div255(blue * combinedAlpha + p_blue * ialpha));
                 }
             }
+            covers++;
             p++;
             currentX++;
         } while (--count != 0);

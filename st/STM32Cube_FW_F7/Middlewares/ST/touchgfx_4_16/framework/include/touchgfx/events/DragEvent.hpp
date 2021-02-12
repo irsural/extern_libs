@@ -1,6 +1,6 @@
 /**
   ******************************************************************************
-  * This file is part of the TouchGFX 4.15.0 distribution.
+  * This file is part of the TouchGFX 4.16.0 distribution.
   *
   * <h2><center>&copy; Copyright (c) 2020 STMicroelectronics.
   * All rights reserved.</center></h2>
@@ -44,14 +44,14 @@ public:
     /**
      * Initializes a new instance of the DragEvent class.
      *
-     * @param  type The type of the drag event.
-     * @param  oldX The x coordinate of the drag start position (dragged from)
-     * @param  oldY The y coordinate of the drag start position (dragged from)
-     * @param  newX The x coordinate of the new position (dragged to)
-     * @param  newY The y coordinate of the new position (dragged to)
+     * @param  type  The type of the drag event.
+     * @param  fromX The x coordinate of the drag start position (dragged from)
+     * @param  fromY The y coordinate of the drag start position (dragged from)
+     * @param  toX   The x coordinate of the new position (dragged to)
+     * @param  toY   The y coordinate of the new position (dragged to)
      */
-    DragEvent(DragEventType type, int16_t oldX, int16_t oldY, int16_t newX, int16_t newY)
-        : _type(type), _oldX(oldX), _oldY(oldY), _newX(newX), _newY(newY)
+    DragEvent(DragEventType type, int16_t fromX, int16_t fromY, int16_t toX, int16_t toY)
+        : dragEventType(type), dragFromX(fromX), dragFromY(fromY), dragToX(toX), dragToY(toY)
     {
     }
 
@@ -62,7 +62,7 @@ public:
      */
     int16_t getOldX() const
     {
-        return _oldX;
+        return dragFromX;
     }
 
     /**
@@ -72,7 +72,7 @@ public:
      */
     int16_t getOldY() const
     {
-        return _oldY;
+        return dragFromY;
     }
 
     /**
@@ -82,7 +82,7 @@ public:
      */
     int16_t getNewX() const
     {
-        return _newX;
+        return dragToX;
     }
 
     /**
@@ -92,7 +92,7 @@ public:
      */
     int16_t getNewY() const
     {
-        return _newY;
+        return dragToY;
     }
 
     /**
@@ -102,7 +102,7 @@ public:
      */
     DragEventType getType() const
     {
-        return _type;
+        return dragEventType;
     }
 
     /**
@@ -112,7 +112,7 @@ public:
      */
     int16_t getDeltaX() const
     {
-        return _newX - _oldX;
+        return dragToX - dragFromX;
     }
 
     /**
@@ -122,7 +122,7 @@ public:
      */
     int16_t getDeltaY() const
     {
-        return _newY - _oldY;
+        return dragToY - dragFromY;
     }
 
     /**
@@ -136,11 +136,11 @@ public:
     }
 
 private:
-    DragEventType _type;
-    int16_t _oldX;
-    int16_t _oldY;
-    int16_t _newX;
-    int16_t _newY;
+    DragEventType dragEventType;
+    int16_t dragFromX;
+    int16_t dragFromY;
+    int16_t dragToX;
+    int16_t dragToY;
 };
 
 } // namespace touchgfx

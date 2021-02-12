@@ -1,6 +1,6 @@
 /**
   ******************************************************************************
-  * This file is part of the TouchGFX 4.15.0 distribution.
+  * This file is part of the TouchGFX 4.16.0 distribution.
   *
   * <h2><center>&copy; Copyright (c) 2020 STMicroelectronics.
   * All rights reserved.</center></h2>
@@ -49,7 +49,6 @@ public:
     class FullSolidRect : public Widget
     {
     public:
-
         virtual Rect getSolidRect() const
         {
             return Rect(0U, 0U, rect.width, rect.height);
@@ -235,7 +234,7 @@ private:
     uint8_t animationCounter;     ///< Current step in the transition animation.
     int16_t targetValue;          ///< The target value for the transition animation.
     int16_t calculatedValue;      ///< The calculated X or Y value to move the snapshot and the children.
-    FullSolidRect solid; ///< A solid rect that covers the entire screen to avoid copying elements outside
+    FullSolidRect solid;          ///< A solid rect that covers the entire screen to avoid copying elements outside
 };
 
 } // namespace touchgfx

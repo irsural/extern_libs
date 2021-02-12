@@ -1,6 +1,6 @@
 /**
   ******************************************************************************
-  * This file is part of the TouchGFX 4.15.0 distribution.
+  * This file is part of the TouchGFX 4.16.0 distribution.
   *
   * <h2><center>&copy; Copyright (c) 2020 STMicroelectronics.
   * All rights reserved.</center></h2>
@@ -22,7 +22,7 @@
 #define BOXWITHBORDER_HPP
 
 #include <touchgfx/Bitmap.hpp>
-#include <touchgfx/widgets/Widget.hpp>
+#include <touchgfx/widgets/Box.hpp>
 
 namespace touchgfx
 {
@@ -31,11 +31,11 @@ namespace touchgfx
  * display. The width of the border can be specified. If the border width is 0 the
  * BoxWithBorder will function just like a Box.
  */
-class BoxWithBorder : public Widget
+class BoxWithBorder : public Box
 {
 public:
     BoxWithBorder()
-        : Widget(), alpha(255), color(0), borderColor(0), borderSize(0)
+        : Box(), borderColor(0), borderSize(0)
     {
     }
 
@@ -49,37 +49,11 @@ public:
      * @param  borderSize  Size of the border.
      * @param  alpha       (Optional) The alpha.
      */
-    BoxWithBorder(uint16_t width, uint16_t height, colortype color, colortype borderColor, uint8_t borderSize, uint8_t alpha = 255)
-        : Widget(), alpha(alpha), color(color), borderColor(borderColor), borderSize(borderSize)
+    BoxWithBorder(uint16_t width, uint16_t height, colortype color, colortype borderColor, uint16_t borderSize, uint8_t alpha = 255)
+        : Box(width, height, color, alpha), borderColor(borderColor), borderSize(borderSize)
     {
         rect.width = width;
         rect.height = height;
-    }
-
-    virtual Rect getSolidRect() const;
-
-    /**
-     * Sets the color of the center of the BoxWithBorder.
-     *
-     * @param  color The color of the center.
-     *
-     * @see getColor, setBorderColor, Color::getColorFrom24BitRGB
-     */
-    void setColor(colortype color)
-    {
-        this->color = color;
-    }
-
-    /**
-     * Gets the color of the center of the BoxWithBorder.
-     *
-     * @return The color of the center.
-     *
-     * @see setColor, getBorderColor, Color::getRedColor, Color::getGreenColor, Color::getRedColor
-     */
-    FORCE_INLINE_FUNCTION colortype getColor() const
-    {
-        return color;
     }
 
     /**
@@ -112,7 +86,7 @@ public:
      *
      * @see getBorderSize
      */
-    void setBorderSize(uint8_t size)
+    void setBorderSize(uint16_t size)
     {
         borderSize = size;
     }
@@ -124,34 +98,16 @@ public:
      *
      * @see setBorderSize
      */
-    FORCE_INLINE_FUNCTION uint8_t getBorderSize() const
+    FORCE_INLINE_FUNCTION uint16_t getBorderSize() const
     {
         return borderSize;
-    }
-
-    /**
-     * @copydoc Image::setAlpha
-     */
-    void setAlpha(uint8_t newAlpha)
-    {
-        this->alpha = newAlpha;
-    }
-
-    /**
-     * @copydoc Image::getAlpha
-     */
-    FORCE_INLINE_FUNCTION uint8_t getAlpha() const
-    {
-        return alpha;
     }
 
     virtual void draw(const Rect& area) const;
 
 protected:
-    uint8_t alpha;         ///< The alpha for the box and the border
-    colortype color;       ///< The color of the center box
     colortype borderColor; ///< The color of the border along the edge
-    uint8_t borderSize;    ///< Width of the border along the edge
+    uint16_t borderSize;    ///< Width of the border along the edge
 };
 
 } // namespace touchgfx

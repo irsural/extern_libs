@@ -1,6 +1,6 @@
 /**
   ******************************************************************************
-  * This file is part of the TouchGFX 4.15.0 distribution.
+  * This file is part of the TouchGFX 4.16.0 distribution.
   *
   * <h2><center>&copy; Copyright (c) 2020 STMicroelectronics.
   * All rights reserved.</center></h2>
@@ -17,17 +17,17 @@
 
 namespace touchgfx
 {
-Slider::Slider() :
-    Container(),
-    sliderOrientation(HORIZONTAL),
-    currentValue(0),
-    valueRangeMin(0),
-    valueRangeMax(1),
-    indicatorMinPosition(0),
-    indicatorMaxPosition(1),
-    startValueCallback(0),
-    stopValueCallback(0),
-    newValueCallback(0)
+Slider::Slider()
+    : Container(),
+      sliderOrientation(HORIZONTAL),
+      currentValue(0),
+      valueRangeMin(0),
+      valueRangeMax(1),
+      indicatorMinPosition(0),
+      indicatorMaxPosition(1),
+      startValueCallback(0),
+      stopValueCallback(0),
+      newValueCallback(0)
 {
     setTouchable(true);
 
@@ -53,8 +53,7 @@ void Slider::setBitmaps(const Bitmap& sliderBackground, const Bitmap& sliderBack
     background.setBitmap(sliderBackground);
     backgroundSelected.setBitmap(sliderBackgroundSelected);
     indicator.setBitmap(indicatorBitmap);
-    backgroundSelectedViewPort.setWidth(backgroundSelected.getWidth());
-    backgroundSelectedViewPort.setHeight(backgroundSelected.getHeight());
+    backgroundSelectedViewPort.setWidthHeight(backgroundSelected);
 }
 
 void Slider::setBitmaps(const BitmapId sliderBackground, const BitmapId sliderBackgroundSelected, const BitmapId indicatorBitmap)
@@ -84,8 +83,7 @@ void Slider::setupHorizontalSlider(uint16_t backgroundX, uint16_t backgroundY, u
     indicatorMinPosition = indicatorMinX;
     indicatorMaxPosition = indicatorMaxX;
 
-    setWidth(newWidth);
-    setHeight(newHeight);
+    setWidthHeight(newWidth, newHeight);
 
     setValue(currentValue);
 }
@@ -111,8 +109,7 @@ void Slider::setupVerticalSlider(uint16_t backgroundX, uint16_t backgroundY, uin
     indicatorMinPosition = indicatorMinY;
     indicatorMaxPosition = indicatorMaxY;
 
-    setWidth(newWidth);
-    setHeight(newHeight);
+    setWidthHeight(newWidth, newHeight);
 
     setValue(currentValue);
 }
@@ -163,7 +160,8 @@ void Slider::handleDragEvent(const DragEvent& evt)
 
 int16_t Slider::valueToPosition(int value) const
 {
-    value = MAX(MIN(valueRangeMax, value), valueRangeMin);
+    value = MIN(valueRangeMax, value);
+    value = MAX(value, valueRangeMin);
 
     int coordinateOffset = ((value - valueRangeMin) * (getIndicatorPositionRangeSize() + 1)) / getValueRangeSize();
 
@@ -212,7 +210,8 @@ int Slider::positionToValue(int16_t position) const
 void Slider::updateIndicatorPosition(int16_t position)
 {
     // Cut off positions outside the slider area
-    position = MIN(MAX(position, indicatorMinPosition), indicatorMaxPosition);
+    position = MAX(position, indicatorMinPosition);
+    position = MIN(position, indicatorMaxPosition);
 
     if (sliderOrientation == HORIZONTAL)
     {

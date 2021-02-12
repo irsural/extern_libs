@@ -1,6 +1,6 @@
 /**
   ******************************************************************************
-  * This file is part of the TouchGFX 4.15.0 distribution.
+  * This file is part of the TouchGFX 4.16.0 distribution.
   *
   * <h2><center>&copy; Copyright (c) 2020 STMicroelectronics.
   * All rights reserved.</center></h2>
@@ -66,6 +66,7 @@ public:
           isSkinActive(true),
           isWindowBorderless(false),
           isWindowVisible(true),
+          isConsoleVisible(true),
           windowDrag(false)
     {
         setVsyncInterval(30.f); // Simulate 20Hz per default for backward compatibility
@@ -116,19 +117,6 @@ public:
      * @return true if the copy succeeded, false if copy was not performed.
      */
     virtual bool blockCopy(void* RESTRICT dest, const void* RESTRICT src, uint32_t numBytes);
-
-    ///@cond
-    /**
-     * If Blit-operations are supported, transparency-keying support is implicitly assumed.
-     *
-     * @param  key The "transparent" color value.
-     *
-     * @deprecated Transparancy key is no longer supported.
-     */
-    TOUCHGFX_DEPRECATED(
-        "Transparancy key is no longer supported.",
-        virtual void blitSetTransparencyKey(uint16_t key));
-    ///@endcond
 
     /**
      * Sets vsync interval for simulating same tick speed as the real hardware. Due to
@@ -209,7 +197,7 @@ public:
      * @note When as skin is set, the entire framebuffer is rendered through SDL whenever there is
      *       a change. Without a skin, only the areas with changes is rendered through SDL.
      */
-    void loadSkin(touchgfx::DisplayOrientation orientation, int x, int y);
+    void loadSkin(DisplayOrientation orientation, int x, int y);
 
     /** Saves a screenshot to the default folder and default filename. */
     void saveScreenshot();
@@ -300,14 +288,48 @@ public:
     static uint8_t* doRotate(uint8_t* dst, uint8_t* src);
 
     /**
-     * Change visibility of window (hidden vs. shown).
+     * Change visibility of window (hidden vs. shown) as well as (due to
+     * backward compatibility) the visibility of the console window.
      *
      * @param  visible      Should the window be visible?
      * @param  redrawWindow (Optional) Should the window be redrawn? Default is true.
+     *
+     * @see getWindowVisible, setConsoleVisible
      */
     void setWindowVisible(bool visible, bool redrawWindow = true)
     {
         isWindowVisible = visible;
+        isConsoleVisible = visible;
+        if (redrawWindow)
+        {
+            recreateWindow();
+            simulator_enable_stdio();
+        }
+    }
+
+    /**
+     * Is the window visible?
+     *
+     * @return True if it is visible, false if it is hidden.
+     *
+     * @see setWindowVisible, getConsoleVisible
+     */
+    bool getWindowVisible() const
+    {
+        return isWindowVisible;
+    }
+
+    /**
+     * Change visibility of console window (hidden vs. shown).
+     *
+     * @param  visible      Should the window be visible?
+     * @param  redrawWindow (Optional) Should the window be redrawn? Default is true.
+     *
+     * @see setWindowVisible, getConsoleVisible
+     */
+    void setConsoleVisible(bool visible, bool redrawWindow = true)
+    {
+        isConsoleVisible = visible;
         if (redrawWindow)
         {
             recreateWindow();
@@ -316,13 +338,15 @@ public:
     }
 
     /**
-     * Are windows visible?
+     * Is console window visible?
      *
      * @return True if it is visible, false if it is hidden.
+     *
+     * @see setConsoleVisible, getWindowVisible
      */
-    bool getWindowVisible() const
+    bool getConsoleVisible() const
     {
-        return isWindowVisible;
+        return isConsoleVisible;
     }
 
 protected:
@@ -421,6 +445,7 @@ private:
     bool isSkinActive;
     bool isWindowBorderless;
     bool isWindowVisible;
+    bool isConsoleVisible;
     static bool flashInvalidatedRect;
 
     bool windowDrag;

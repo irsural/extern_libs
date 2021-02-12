@@ -1,6 +1,6 @@
 /**
   ******************************************************************************
-  * This file is part of the TouchGFX 4.15.0 distribution.
+  * This file is part of the TouchGFX 4.16.0 distribution.
   *
   * <h2><center>&copy; Copyright (c) 2020 STMicroelectronics.
   * All rights reserved.</center></h2>
@@ -18,7 +18,7 @@
 namespace touchgfx
 {
 GraphLabelsBase::GraphLabelsBase()
-    : labelInterval(0), labelTypedText(TypedText(-1)), labelRotation(TEXT_ROTATE_0), labelDecimals(0), labelDecimalPoint('.'),
+    : labelInterval(0), labelTypedText(TypedText(TYPED_TEXT_INVALID)), labelRotation(TEXT_ROTATE_0), labelDecimals(0), labelDecimalPoint('.'),
       majorLabel(0)
 {
 }
@@ -470,7 +470,7 @@ void GraphLabelsY::drawString(const Rect& invalidatedArea, const Font* fontToDra
 }
 
 GraphTitle::GraphTitle()
-    : titleTypedText(TypedText(-1)), titleRotation(TEXT_ROTATE_0)
+    : titleTypedText(TypedText(TYPED_TEXT_INVALID)), titleRotation(TEXT_ROTATE_0)
 {
 }
 

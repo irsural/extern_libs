@@ -1,6 +1,6 @@
 /**
   ******************************************************************************
-  * This file is part of the TouchGFX 4.15.0 distribution.
+  * This file is part of the TouchGFX 4.16.0 distribution.
   *
   * <h2><center>&copy; Copyright (c) 2020 STMicroelectronics.
   * All rights reserved.</center></h2>
@@ -17,28 +17,28 @@
 
 namespace touchgfx
 {
-ZoomAnimationImage::ZoomAnimationImage() :
-    Container(),
-    currentState(NO_ANIMATION),
-    animationCounter(0),
-    zoomAnimationDelay(0),
-    currentZoomMode(FIXED_LEFT_AND_TOP),
-    zoomAnimationStartWidth(0),
-    zoomAnimationStartHeight(0),
-    zoomAnimationEndWidth(0),
-    zoomAnimationEndHeight(0),
-    zoomAnimationStartX(0),
-    zoomAnimationStartY(0),
-    zoomAnimationDeltaX(0),
-    zoomAnimationDeltaY(0),
-    moveAnimationEndX(0),
-    moveAnimationEndY(0),
-    animationDuration(0),
-    zoomAnimationWidthEquation(EasingEquations::linearEaseNone),
-    zoomAnimationHeightEquation(EasingEquations::linearEaseNone),
-    moveAnimationXEquation(EasingEquations::linearEaseNone),
-    moveAnimationYEquation(EasingEquations::linearEaseNone),
-    animationEndedAction(0)
+ZoomAnimationImage::ZoomAnimationImage()
+    : Container(),
+      currentState(NO_ANIMATION),
+      animationCounter(0),
+      zoomAnimationDelay(0),
+      currentZoomMode(FIXED_LEFT_AND_TOP),
+      zoomAnimationStartWidth(0),
+      zoomAnimationStartHeight(0),
+      zoomAnimationEndWidth(0),
+      zoomAnimationEndHeight(0),
+      zoomAnimationStartX(0),
+      zoomAnimationStartY(0),
+      zoomAnimationDeltaX(0),
+      zoomAnimationDeltaY(0),
+      moveAnimationEndX(0),
+      moveAnimationEndY(0),
+      animationDuration(0),
+      zoomAnimationWidthEquation(EasingEquations::linearEaseNone),
+      zoomAnimationHeightEquation(EasingEquations::linearEaseNone),
+      moveAnimationXEquation(EasingEquations::linearEaseNone),
+      moveAnimationYEquation(EasingEquations::linearEaseNone),
+      animationEndedAction(0)
 {
     image.setXY(0, 0);
     image.setVisible(false);
@@ -50,7 +50,6 @@ ZoomAnimationImage::ZoomAnimationImage() :
     Container::add(image);
     Container::add(scalableImage);
 }
-
 
 void ZoomAnimationImage::startZoomAnimation(int16_t endWidth, int16_t endHeight, uint16_t duration, ZoomMode zoomMode, EasingEquation widthProgressionEquation, EasingEquation heightProgressionEquation)
 {
@@ -74,7 +73,7 @@ void ZoomAnimationImage::startZoomAndMoveAnimation(int16_t endX, int16_t endY, i
 
 void ZoomAnimationImage::cancelZoomAnimation()
 {
-    touchgfx::Application::getInstance()->unregisterTimerWidget(this);
+    Application::getInstance()->unregisterTimerWidget(this);
     setCurrentState(NO_ANIMATION);
 }
 
@@ -82,12 +81,8 @@ void ZoomAnimationImage::handleTickEvent()
 {
     if ((currentState == ANIMATE_ZOOM) || (currentState == ANIMATE_ZOOM_AND_MOVE))
     {
-        if (animationCounter < zoomAnimationDelay)
-        {
-            // Just wait for the delay time to pass
-            animationCounter++;
-        }
-        else if (animationCounter <= (uint32_t)(zoomAnimationDelay + animationDuration))
+        animationCounter++;
+        if (animationCounter >= zoomAnimationDelay)
         {
             // Adjust the used animationCounter for the startup delay
             uint32_t actualAnimationCounter = animationCounter - zoomAnimationDelay;
@@ -95,7 +90,7 @@ void ZoomAnimationImage::handleTickEvent()
             int16_t deltaWidth = zoomAnimationWidthEquation(actualAnimationCounter, 0, zoomAnimationEndWidth - zoomAnimationStartWidth, animationDuration);
             int16_t deltaHeight = zoomAnimationHeightEquation(actualAnimationCounter, 0, zoomAnimationEndHeight - zoomAnimationStartHeight, animationDuration);
 
-            setDimension(zoomAnimationStartWidth + deltaWidth, zoomAnimationStartHeight + deltaHeight);
+            setWidthHeight(zoomAnimationStartWidth + deltaWidth, zoomAnimationStartHeight + deltaHeight);
 
             int16_t deltaX;
             int16_t deltaY;
@@ -111,15 +106,15 @@ void ZoomAnimationImage::handleTickEvent()
                 deltaY = zoomAnimationHeightEquation(actualAnimationCounter, 0, zoomAnimationDeltaY, animationDuration);
             }
             moveTo(zoomAnimationStartX + deltaX, zoomAnimationStartY + deltaY);
-            animationCounter++;
-        }
-        else
-        {
-            cancelZoomAnimation();
 
-            if (animationEndedAction && animationEndedAction->isValid())
+            if (animationCounter >= (uint32_t)(zoomAnimationDelay + animationDuration))
             {
-                animationEndedAction->execute(*this);
+                cancelZoomAnimation();
+
+                if (animationEndedAction && animationEndedAction->isValid())
+                {
+                    animationEndedAction->execute(*this);
+                }
             }
         }
     }
@@ -132,34 +127,26 @@ void ZoomAnimationImage::setBitmaps(const Bitmap& smallBitmap, const Bitmap& lar
 
     scalableImage.setBitmap(largeBmp);
 
-    touchgfx::Container::setWidth(largeBmp.getWidth());
-    touchgfx::Container::setHeight(largeBmp.getHeight());
-    updateRenderingMethod();
-}
-
-void ZoomAnimationImage::setPosition(int16_t x, int16_t y, int16_t width, int16_t height)
-{
-    invalidate();
-    touchgfx::Container::setPosition(x, y, width, height);
-    updateRenderingMethod();
+    ZoomAnimationImage::setWidthHeight(largeBmp);
 }
 
 void ZoomAnimationImage::setWidth(int16_t width)
 {
-    setDimension(width, getHeight());
+    invalidate();
+    Container::setWidth(width);
+    updateRenderingMethod();
 }
 
 void ZoomAnimationImage::setHeight(int16_t height)
 {
-    setDimension(getWidth(), height);
+    invalidate();
+    Container::setHeight(height);
+    updateRenderingMethod();
 }
 
 void ZoomAnimationImage::setDimension(int16_t width, int16_t height)
 {
-    invalidate();
-    touchgfx::Container::setWidth(width);
-    touchgfx::Container::setHeight(height);
-    updateRenderingMethod();
+    Container::setWidthHeight(width, height);
 }
 
 void ZoomAnimationImage::setScalingMode(ScalableImage::ScalingAlgorithm mode)
@@ -172,10 +159,10 @@ ScalableImage::ScalingAlgorithm ZoomAnimationImage::getScalingMode()
     return scalableImage.getScalingAlgorithm();
 }
 
-void ZoomAnimationImage::setAlpha(const uint8_t alpha)
+void ZoomAnimationImage::setAlpha(const uint8_t newAlpha)
 {
-    image.setAlpha(alpha);
-    scalableImage.setAlpha(alpha);
+    image.setAlpha(newAlpha);
+    scalableImage.setAlpha(newAlpha);
 }
 
 uint8_t ZoomAnimationImage::getAlpha() const
@@ -191,11 +178,6 @@ void ZoomAnimationImage::setAnimationDelay(uint16_t delay)
 uint16_t ZoomAnimationImage::getAnimationDelay() const
 {
     return zoomAnimationDelay;
-}
-
-bool ZoomAnimationImage::isRunning()
-{
-    return isZoomAnimationRunning();
 }
 
 bool ZoomAnimationImage::isZoomAnimationRunning() const
@@ -226,8 +208,7 @@ void ZoomAnimationImage::updateRenderingMethod()
         image.setVisible(false);
         image.invalidate();
         scalableImage.setVisible(true);
-        scalableImage.setWidth(getWidth());
-        scalableImage.setHeight(getHeight());
+        scalableImage.setWidthHeight(*this);
         scalableImage.invalidate();
     }
 }
@@ -240,7 +221,7 @@ void ZoomAnimationImage::setCurrentState(States state)
 
 void ZoomAnimationImage::startTimerAndSetParameters(int16_t endWidth, int16_t endHeight, uint16_t duration, ZoomMode zoomMode, EasingEquation widthProgressionEquation, EasingEquation heightProgressionEquation)
 {
-    touchgfx::Application::getInstance()->registerTimerWidget(this);
+    Application::getInstance()->registerTimerWidget(this);
 
     currentZoomMode = zoomMode;
 
@@ -270,35 +251,35 @@ void ZoomAnimationImage::updateZoomAnimationDeltaXY()
 
     switch (currentZoomMode)
     {
-    case ZoomAnimationImage::FIXED_CENTER:
+    case FIXED_CENTER:
         zoomAnimationDeltaX /= 2;
         zoomAnimationDeltaY /= 2;
         break;
-    case ZoomAnimationImage::FIXED_LEFT:
+    case FIXED_LEFT:
         zoomAnimationDeltaX = 0;
         zoomAnimationDeltaY /= 2;
         break;
-    case ZoomAnimationImage::FIXED_RIGHT:
+    case FIXED_RIGHT:
         zoomAnimationDeltaY /= 2;
         break;
-    case ZoomAnimationImage::FIXED_TOP:
+    case FIXED_TOP:
         zoomAnimationDeltaX /= 2;
         zoomAnimationDeltaY = 0;
         break;
-    case ZoomAnimationImage::FIXED_BOTTOM:
+    case FIXED_BOTTOM:
         zoomAnimationDeltaX /= 2;
         break;
-    case ZoomAnimationImage::FIXED_LEFT_AND_TOP:
+    case FIXED_LEFT_AND_TOP:
         zoomAnimationDeltaX = 0;
         zoomAnimationDeltaY = 0;
         break;
-    case ZoomAnimationImage::FIXED_RIGHT_AND_TOP:
+    case FIXED_RIGHT_AND_TOP:
         zoomAnimationDeltaY = 0;
         break;
-    case ZoomAnimationImage::FIXED_LEFT_AND_BOTTOM:
+    case FIXED_LEFT_AND_BOTTOM:
         zoomAnimationDeltaX = 0;
         break;
-    case ZoomAnimationImage::FIXED_RIGHT_AND_BOTTOM:
+    case FIXED_RIGHT_AND_BOTTOM:
         break;
     default:
         break;

@@ -1,6 +1,6 @@
 /**
   ******************************************************************************
-  * This file is part of the TouchGFX 4.15.0 distribution.
+  * This file is part of the TouchGFX 4.16.0 distribution.
   *
   * <h2><center>&copy; Copyright (c) 2020 STMicroelectronics.
   * All rights reserved.</center></h2>
@@ -303,7 +303,7 @@ const char* HALSDL2::getWindowTitle()
     return title;
 }
 
-void HALSDL2::loadSkin(touchgfx::DisplayOrientation orientation, int x, int y)
+void HALSDL2::loadSkin(DisplayOrientation orientation, int x, int y)
 {
     char path[300];
 
@@ -1155,10 +1155,6 @@ bool HALSDL2::blockCopy(void* RESTRICT dest, const void* RESTRICT src, uint32_t 
     return HAL::blockCopy(dest, src, numBytes);
 }
 
-void HALSDL2::blitSetTransparencyKey(uint16_t /*key*/)
-{
-}
-
 void HALSDL2::setVsyncInterval(float ms)
 {
     msBetweenTicks = ms;
@@ -1354,8 +1350,8 @@ void simulator_enable_stdio()
 #ifdef __GNUC__
 #define freopen_s(pFile, filename, mode, pStream) (((*(pFile)) = freopen((filename), (mode), (pStream))) == NULL)
 #endif
-    touchgfx::HAL* hal = touchgfx::HAL::getInstance();
-    if (static_cast<touchgfx::HALSDL2*>(hal)->getWindowVisible())
+    HAL* hal = HAL::getInstance();
+    if (static_cast<HALSDL2*>(hal)->getConsoleVisible())
     {
         HWND consoleHwnd = GetConsoleWindow(); // Get handle of console window
         if (!consoleHwnd)                      // No console window yet?

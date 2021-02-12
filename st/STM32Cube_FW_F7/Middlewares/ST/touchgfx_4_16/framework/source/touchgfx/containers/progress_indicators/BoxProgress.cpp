@@ -1,6 +1,6 @@
 /**
   ******************************************************************************
-  * This file is part of the TouchGFX 4.15.0 distribution.
+  * This file is part of the TouchGFX 4.16.0 distribution.
   *
   * <h2><center>&copy; Copyright (c) 2020 STMicroelectronics.
   * All rights reserved.</center></h2>
@@ -35,7 +35,7 @@ void BoxProgress::setColor(colortype color)
     box.setColor(color);
 }
 
-touchgfx::colortype BoxProgress::getColor() const
+colortype BoxProgress::getColor() const
 {
     return box.getColor();
 }
@@ -56,18 +56,18 @@ void BoxProgress::setValue(int value)
     int16_t progress = 0;
     switch (progressDirection)
     {
-    case AbstractDirectionProgress::RIGHT:
-    case AbstractDirectionProgress::LEFT:
+    case RIGHT:
+    case LEFT:
         progress = AbstractProgressIndicator::getProgress(progressIndicatorContainer.getWidth());
         break;
-    case AbstractDirectionProgress::DOWN:
-    case AbstractDirectionProgress::UP:
+    case DOWN:
+    case UP:
         progress = AbstractProgressIndicator::getProgress(progressIndicatorContainer.getHeight());
         break;
     }
     switch (progressDirection)
     {
-    case AbstractDirectionProgress::RIGHT:
+    case RIGHT:
         {
             int16_t oldWidth = box.getWidth();
             box.setPosition(0, 0, progress, progressIndicatorContainer.getHeight());
@@ -76,7 +76,7 @@ void BoxProgress::setValue(int value)
             progressIndicatorContainer.invalidateRect(rect);
             break;
         }
-    case AbstractDirectionProgress::LEFT:
+    case LEFT:
         {
             int16_t oldX = box.getX();
             box.setPosition(getWidth() - progress, 0, progress, progressIndicatorContainer.getHeight());
@@ -85,7 +85,7 @@ void BoxProgress::setValue(int value)
             progressIndicatorContainer.invalidateRect(rect);
             break;
         }
-    case AbstractDirectionProgress::DOWN:
+    case DOWN:
         {
             int16_t oldHeight = box.getHeight();
             box.setPosition(0, 0, progressIndicatorContainer.getWidth(), progress);
@@ -94,7 +94,7 @@ void BoxProgress::setValue(int value)
             progressIndicatorContainer.invalidateRect(rect);
             break;
         }
-    case AbstractDirectionProgress::UP:
+    case UP:
         {
             int16_t oldY = box.getY();
             box.setPosition(0, progressIndicatorContainer.getHeight() - progress, progressIndicatorContainer.getWidth(), progress);

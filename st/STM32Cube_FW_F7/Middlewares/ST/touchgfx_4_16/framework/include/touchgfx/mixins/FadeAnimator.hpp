@@ -1,6 +1,6 @@
 /**
   ******************************************************************************
-  * This file is part of the TouchGFX 4.15.0 distribution.
+  * This file is part of the TouchGFX 4.16.0 distribution.
   *
   * <h2><center>&copy; Copyright (c) 2020 STMicroelectronics.
   * All rights reserved.</center></h2>
@@ -100,22 +100,6 @@ public:
         return fadeAnimationDelay;
     }
 
-    ///@cond
-    /**
-     * Gets whether or not the fade animation is running.
-     *
-     * @return true if the fade animation is running.
-     *
-     * @deprecated Use FadeAnimator::isFadeAnimationRunning().
-     */
-    TOUCHGFX_DEPRECATED(
-        "Use FadeAnimator::isFadeAnimationRunning().",
-        bool isRunning())
-    {
-        return isFadeAnimationRunning();
-    }
-    ///@endcond
-
     /**
      * Gets whether or not the fade animation is running.
      *
@@ -171,7 +155,6 @@ public:
         }
     }
 
-protected:
     /** @copydoc Drawable::handleTickEvent */
     virtual void handleTickEvent()
     {
@@ -179,31 +162,24 @@ protected:
         nextFadeAnimationStep();
     }
 
+protected:
     /** Execute next step in fade animation and stop the timer if necessary. */
     void nextFadeAnimationStep()
     {
         if (fadeAnimationRunning)
         {
-            if (fadeAnimationCounter < fadeAnimationDelay)
+            fadeAnimationCounter++;
+            if (fadeAnimationCounter >= fadeAnimationDelay)
             {
-                // Just wait for the delay time to pass
-                fadeAnimationCounter++;
-            }
-            else
-            {
-                if (fadeAnimationCounter <= (uint32_t)(fadeAnimationDelay + fadeAnimationDuration))
-                {
-                    // Adjust the used animationCounter for the startup delay
-                    uint32_t actualAnimationCounter = fadeAnimationCounter - fadeAnimationDelay;
+                // Adjust the used animationCounter for the startup delay
+                uint32_t actualAnimationCounter = fadeAnimationCounter - fadeAnimationDelay;
 
-                    int16_t deltaAlpha = (int16_t)fadeAnimationAlphaEquation(actualAnimationCounter, 0, fadeAnimationEndAlpha - fadeAnimationStartAlpha, fadeAnimationDuration);
+                int16_t deltaAlpha = (int16_t)fadeAnimationAlphaEquation(actualAnimationCounter, 0, fadeAnimationEndAlpha - fadeAnimationStartAlpha, fadeAnimationDuration);
 
-                    T::setAlpha(fadeAnimationStartAlpha + deltaAlpha);
-                    T::invalidate();
+                T::setAlpha(fadeAnimationStartAlpha + deltaAlpha);
+                T::invalidate();
 
-                    fadeAnimationCounter++;
-                }
-                if (fadeAnimationCounter > (uint32_t)(fadeAnimationDelay + fadeAnimationDuration))
+                if (fadeAnimationCounter >= (uint32_t)(fadeAnimationDelay + fadeAnimationDuration))
                 {
                     // End of animation
                     fadeAnimationRunning = false;
@@ -219,7 +195,6 @@ protected:
         }
     }
 
-protected:
     bool fadeAnimationRunning;                 ///< True if the animation is running.
     uint16_t fadeAnimationCounter;             ///< To the current step in the animation
     uint16_t fadeAnimationDelay;               ///< A delay that is applied before animation start. Expressed in ticks.

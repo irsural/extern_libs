@@ -1,6 +1,6 @@
 /**
   ******************************************************************************
-  * This file is part of the TouchGFX 4.15.0 distribution.
+  * This file is part of the TouchGFX 4.16.0 distribution.
   *
   * <h2><center>&copy; Copyright (c) 2020 STMicroelectronics.
   * All rights reserved.</center></h2>
@@ -94,9 +94,9 @@ int CircleProgress::getEndAngle() const
     return circleEndAngle;
 }
 
-void CircleProgress::setAlpha(uint8_t alpha)
+void CircleProgress::setAlpha(uint8_t newAlpha)
 {
-    circle.setAlpha(alpha);
+    circle.setAlpha(newAlpha);
 }
 
 uint8_t CircleProgress::getAlpha() const
@@ -106,10 +106,10 @@ uint8_t CircleProgress::getAlpha() const
 
 void CircleProgress::setValue(int value)
 {
+    AbstractProgressIndicator::setValue(value);
     CWRUtil::Q5 startAngle;
     CWRUtil::Q5 endAngle = CWRUtil::toQ5(circleEndAngle);
     circle.getArcStart<CWRUtil::Q5>(startAngle);
-    AbstractProgressIndicator::setValue(value);
     uint16_t rangeAngleSteps = endAngle < startAngle ? (int)(startAngle - endAngle) : (int)(endAngle - startAngle);
     CWRUtil::Q5 progress = CWRUtil::Q5(AbstractProgressIndicator::getProgress(rangeAngleSteps));
     if (endAngle < startAngle)

@@ -1,6 +1,6 @@
 /**
   ******************************************************************************
-  * This file is part of the TouchGFX 4.15.0 distribution.
+  * This file is part of the TouchGFX 4.16.0 distribution.
   *
   * <h2><center>&copy; Copyright (c) 2020 STMicroelectronics.
   * All rights reserved.</center></h2>
@@ -51,7 +51,6 @@ public:
           snapshot(),
           snapshotPtr(&snapshot),
           handleTickCallback(this, &SlideTransition::tickMoveDrawable),
-          direction(templateDirection),
           animationSteps(transitionSteps),
           animationCounter(0),
           calculatedValue(0)
@@ -61,7 +60,7 @@ public:
             snapshot.setPosition(0, 0, HAL::DISPLAY_WIDTH, HAL::DISPLAY_HEIGHT);
             snapshot.makeSnapshot();
 
-            switch (direction)
+            switch (templateDirection)
             {
             case EAST:
                 targetValue = -HAL::DISPLAY_WIDTH;
@@ -122,7 +121,7 @@ public:
         }
 
         // Move snapshot
-        switch (direction)
+        switch (templateDirection)
         {
         case EAST:
         case WEST:
@@ -175,7 +174,7 @@ protected:
      */
     virtual void initMoveDrawable(Drawable& d)
     {
-        switch (direction)
+        switch (templateDirection)
         {
         case EAST:
             d.moveRelative(HAL::DISPLAY_WIDTH, 0);
@@ -207,7 +206,7 @@ protected:
             return;
         }
 
-        switch (direction)
+        switch (templateDirection)
         {
         case EAST:
         case WEST:
@@ -230,7 +229,6 @@ protected:
 private:
     Callback<SlideTransition, Drawable&> handleTickCallback; ///< Callback used for tickMoveDrawable().
 
-    Direction direction;          ///< The direction of the transition.
     const uint8_t animationSteps; ///< Number of steps the transition should move per complete animation.
     uint8_t animationCounter;     ///< Current step in the transition animation.
     int16_t targetValue;          ///< The target value for the transition animation.

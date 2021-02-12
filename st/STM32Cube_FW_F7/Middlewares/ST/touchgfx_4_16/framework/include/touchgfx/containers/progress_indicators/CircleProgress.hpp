@@ -1,6 +1,6 @@
 /**
   ******************************************************************************
-  * This file is part of the TouchGFX 4.15.0 distribution.
+  * This file is part of the TouchGFX 4.16.0 distribution.
   *
   * <h2><center>&copy; Copyright (c) 2020 STMicroelectronics.
   * All rights reserved.</center></h2>
@@ -153,25 +153,15 @@ public:
     virtual int getEndAngle() const;
 
     /**
-     * Sets the alpha.
+     * @copydoc Image::setAlpha
      *
-     * Sets the alpha of the Circle. Please note, that the alpha can also be set on the
-     * Painter, but this can be controlled directly from the user app, setting alpha for the
-     * CircleProgress will set the alpha of the actual circle.
-     *
-     * @param  alpha The alpha.
-     *
-     * @see getAlpha
+     * @note The alpha can also be set on the Painter, but this can be controlled directly from
+     *       the user app, setting alpha for the CircleProgress will set the alpha of the
+     *       actual circle.
      */
-    virtual void setAlpha(uint8_t alpha);
+    virtual void setAlpha(uint8_t newAlpha);
 
-    /**
-     * Gets the alpha of the circle.
-     *
-     * @return The alpha.
-     *
-     * @see setAlpha
-     */
+    /** @copydoc Image::getAlpha() */
     virtual uint8_t getAlpha() const;
 
     virtual void setValue(int value);

@@ -1,6 +1,6 @@
 /**
   ******************************************************************************
-  * This file is part of the TouchGFX 4.15.0 distribution.
+  * This file is part of the TouchGFX 4.16.0 distribution.
   *
   * <h2><center>&copy; Copyright (c) 2020 STMicroelectronics.
   * All rights reserved.</center></h2>
@@ -18,11 +18,10 @@
 
 namespace touchgfx
 {
-ModalWindow::ModalWindow() :
-    Container()
+ModalWindow::ModalWindow()
+    : Container()
 {
-    Container::setWidth(HAL::DISPLAY_WIDTH);
-    Container::setHeight(HAL::DISPLAY_HEIGHT);
+    ModalWindow::setWidthHeight(HAL::DISPLAY_WIDTH, HAL::DISPLAY_HEIGHT);
 
     int defaultShadeAlpha = 96;
     colortype defaultShadeColor = Color::getColorFrom24BitRGB(0x0, 0x0, 0x0);
@@ -89,7 +88,7 @@ void ModalWindow::setShadeColor(colortype color)
     backgroundShade.invalidate();
 }
 
-touchgfx::colortype ModalWindow::getShadeColor() const
+colortype ModalWindow::getShadeColor() const
 {
     return backgroundShade.getColor();
 }
@@ -104,10 +103,5 @@ void ModalWindow::hide()
 {
     setVisible(false);
     invalidate();
-}
-
-bool ModalWindow::isShowing() const
-{
-    return isVisible();
 }
 } // namespace touchgfx

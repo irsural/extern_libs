@@ -1,5 +1,5 @@
 ##############################################################################
-# This file is part of the TouchGFX 4.15.0 distribution.
+# This file is part of the TouchGFX 4.16.0 distribution.
 #
 # <h2><center>&copy; Copyright (c) 2020 STMicroelectronics.
 # All rights reserved.</center></h2>
@@ -57,37 +57,15 @@ BANNER
     $calling_path = ARGV.shift
 
     #optional arguments
-    if ARGV.include?("yes") or ARGV.include?("remap")
-      remap_identical_texts = "yes"
-    end
+    remap_identical_texts = ARGV.include?("yes") || ARGV.include?("remap") ? "yes" : "no"
 
-    data_format = ""
-    if ARGV.include?("A1")
-      data_format += "A1"
-    end
-    if ARGV.include?("A2")
-      data_format += "A2"
-    end
-    if ARGV.include?("A4")
-      data_format += "A4"
-    end
-    if ARGV.include?("A8")
-      data_format += "A8"
-    end
+    data_format_a1 = ARGV.include?("A1") ? "A1" : ""
+    data_format_a2 = ARGV.include?("A2") ? "A2" : ""
+    data_format_a4 = ARGV.include?("A4") ? "A4" : ""
+    data_format_a8 = ARGV.include?("A8") ? "A8" : ""
 
-    generate_binary_language_files = ""
-    if ARGV.include?("binary_translations")
-      generate_binary_language_files = "yes"
-      if remap_identical_texts == "yes"
-        puts "Disabling remapping of identical texts, because binary language files are generated"
-        remap_identical_texts = "no"
-      end
-    end
-
-    generate_binary_font_files = "no"
-    if ARGV.include?("binary_fonts")
-      generate_binary_font_files = "yes"
-    end
+    generate_binary_translations = ARGV.include?("binary_translations") ? "yes" : "no"
+    generate_binary_fonts = ARGV.include?("binary_fonts") ? "yes" : "no"
 
     framebuffer_bpp = ""
     ["BPP32", "BPP24", "BPP16", "BPP8", "BPP4", "BPP2", "BPP1"].each do |format|
@@ -113,29 +91,29 @@ BANNER
 
       a1 = text_conf["a1"]
       if !a1.nil?
-        data_format += a1 == "yes" ? "A1" : ""
+        data_format_a1 = a1 == "yes" ? "A1" : ""
       end
       a2 = text_conf["a2"]
       if !a2.nil?
-        data_format += a2 == "yes" ? "A2" : ""
+        data_format_a2 = a2 == "yes" ? "A2" : ""
       end
       a4 = text_conf["a4"]
       if !a4.nil?
-        data_format += a4 == "yes" ? "A4" : ""
+        data_format_a4 = a4 == "yes" ? "A4" : ""
+      end
+      a8 = text_conf["a8"]
+      if !a8.nil?
+        data_format_a8 = a8 == "yes" ? "A8" : ""
       end
 
       binary_translations = text_conf["binary_translations"]
       if !binary_translations.nil?
-        generate_binary_language_files = binary_translations == "yes" ? "yes" : ""
-        if generate_binary_language_files == "yes" && remap_identical_texts == "yes"
-          puts "Disabling remapping of identical texts, because binary language files are generated"
-          remap_identical_texts = "no"
-        end
+        generate_binary_translations = binary_translations == "yes" ? "yes" : "no"
       end
 
       binary_fonts = text_conf["binary_fonts"]
       if !binary_fonts.nil?
-        generate_binary_font_files = binary_fonts== "yes" ? "yes" : "no"
+        generate_binary_fonts = binary_fonts== "yes" ? "yes" : "no"
       end
 
       bpp = text_conf["framebuffer_bpp"]
@@ -152,6 +130,12 @@ BANNER
           puts "Font format #{font_format} not correct, using default: \"0\""
         end
       end
+    end
+
+    data_format = "#{data_format_a1}#{data_format_a2}#{data_format_a4}#{data_format_a8}"
+    if generate_binary_translations == "yes" && remap_identical_texts == "yes"
+      puts "Disabling remapping of identical texts, because binary language files are generated"
+      remap_identical_texts = "no"
     end
 
     begin
@@ -186,14 +170,14 @@ BANNER
       options_file = "#{@localization_output_path}/cache/options.cache"
       options = File.exists?(options_file) && File.read(options_file)
 
-      new_options = ""
-      if File.file?(application_config)
-        new_options = JSON.parse(File.read(application_config))["text_configuration"]
-      else
-        new_options = ARGV.to_json
-      end
+      new_options = { :remap => remap_identical_texts,
+                      :data_format => data_format,
+                      :binary_translations => generate_binary_translations,
+                      :binary_fonts => generate_binary_fonts,
+                      :font_format => generate_font_format,
+                      :framebuffer_bpp => framebuffer_bpp }.to_json
 
-      if(options != new_options)
+      if (options != new_options)
         force_run = true
         FileIO.write_file_silent(options_file, new_options)
       end
@@ -222,7 +206,7 @@ BANNER
       require 'lib/generator'
       require 'lib/emitters/fonts_cpp'
       FontsCpp.font_convert = font_convert_path
-      Generator.new.run(file_name, @fonts_output_path, @localization_output_path, font_asset_path, data_format, remap_identical_texts, generate_binary_language_files, generate_binary_font_files, framebuffer_bpp, generate_font_format)
+      Generator.new.run(file_name, @fonts_output_path, @localization_output_path, font_asset_path, data_format, remap_identical_texts, generate_binary_translations, generate_binary_fonts, framebuffer_bpp, generate_font_format)
       #touch the cache compile time that we rely on in the makefile
       FileUtils.touch "#{@localization_output_path}/cache/compile_time.cache"
 

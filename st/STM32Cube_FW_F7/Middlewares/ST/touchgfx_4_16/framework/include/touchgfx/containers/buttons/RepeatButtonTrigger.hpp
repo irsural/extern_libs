@@ -1,6 +1,6 @@
 /**
   ******************************************************************************
-  * This file is part of the TouchGFX 4.15.0 distribution.
+  * This file is part of the TouchGFX 4.16.0 distribution.
   *
   * <h2><center>&copy; Copyright (c) 2020 STMicroelectronics.
   * All rights reserved.</center></h2>
@@ -102,10 +102,8 @@ public:
 
         if (event.getType() == ClickEvent::PRESSED)
         {
-            if (action && action->isValid())
-            {
-                action->execute(*this);
-            }
+            executeAction();
+
             ticks = 0;
             ticksBeforeContinuous = ticksDelay;
             Application::getInstance()->registerTimerWidget(this);
@@ -124,10 +122,7 @@ public:
         {
             if (ticks == ticksBeforeContinuous)
             {
-                if (action && action->isValid())
-                {
-                    action->execute(*this);
-                }
+                executeAction();
 
                 ticks = 0;
                 ticksBeforeContinuous = ticksInterval;

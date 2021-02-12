@@ -1,6 +1,6 @@
 /**
   ******************************************************************************
-  * This file is part of the TouchGFX 4.15.0 distribution.
+  * This file is part of the TouchGFX 4.16.0 distribution.
   *
   * <h2><center>&copy; Copyright (c) 2020 STMicroelectronics.
   * All rights reserved.</center></h2>
@@ -55,7 +55,7 @@ public:
      */
     enum ZoomMode
     {
-        FIXED_CENTER = 0,      ///< The small image will grow from the center of the large image
+        FIXED_CENTER,          ///< The small image will grow from the center of the large image
         FIXED_LEFT,            ///< The small image will grow from the middle of the left side of the large image
         FIXED_RIGHT,           ///< The small image will grow from the middle of the right side of the large image
         FIXED_TOP,             ///< The small image will grow from the middle of the top of the large image
@@ -174,17 +174,9 @@ public:
     }
 
     /**
-     * @copydoc Drawable::setPosition
-     *
-     * @note ZoomAnimationWidget diverts from the normal behavior by automatically invalidating
-     *       which causes a redraw.
-     */
-    virtual void setPosition(int16_t x, int16_t y, int16_t width, int16_t height);
-
-    /**
      * @copydoc Drawable::setWidth
      *
-     * @note ZoomAnimationWidget diverts from the normal behavior by automatically invalidating
+     * @note ZoomAnimationImage diverts from the normal behavior by automatically invalidating
      *       which causes a redraw.
      */
     virtual void setWidth(int16_t width);
@@ -192,21 +184,25 @@ public:
     /**
      * @copydoc Drawable::setHeight
      *
-     * @note ZoomAnimationWidget diverts from the normal behavior by automatically invalidating
+     * @note ZoomAnimationImage diverts from the normal behavior by automatically invalidating
      *       which causes a redraw.
      */
     virtual void setHeight(int16_t height);
 
+    ///@cond
     /**
      * Sets the width and height of the image.
      *
      * @param  width  The new width.
      * @param  height The new height.
      *
-     * @note ZoomAnimationWidget diverts from the normal behavior by automatically invalidating
+     * @note ZoomAnimationImage diverts from the normal behavior by automatically invalidating
      *       which causes a redraw.
      */
-    virtual void setDimension(int16_t width, int16_t height);
+    TOUCHGFX_DEPRECATED(
+        "Use setWidthHeight() instead.",
+        virtual void setDimension(int16_t width, int16_t height));
+    ///@endcond
 
     /**
      * Sets the algorithm to be used. In short, there is currently a value for fast (nearest
@@ -271,19 +267,6 @@ public:
     {
         animationEndedAction = &callback;
     }
-
-    ///@cond
-    /**
-     * Is there currently an animation running.
-     *
-     * @return true if there is an animation running.
-     *
-     * @deprecated Use ZoomAnimationImage::isZoomAnimationRunning().
-     */
-    TOUCHGFX_DEPRECATED(
-        "Use ZoomAnimationImage::isZoomAnimationRunning().",
-        bool isRunning());
-    ///@endcond
 
     /**
      * Is there currently an animation running.

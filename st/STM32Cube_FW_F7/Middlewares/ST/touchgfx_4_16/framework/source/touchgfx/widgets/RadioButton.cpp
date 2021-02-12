@@ -1,6 +1,6 @@
 /**
   ******************************************************************************
-  * This file is part of the TouchGFX 4.15.0 distribution.
+  * This file is part of the TouchGFX 4.16.0 distribution.
   *
   * <h2><center>&copy; Copyright (c) 2020 STMicroelectronics.
   * All rights reserved.</center></h2>
@@ -20,14 +20,19 @@ namespace touchgfx
 {
 void RadioButton::draw(const Rect& invalidatedArea) const
 {
-    Bitmap bmp = getCurrentlyDisplayedBitmap();
-    Rect dirty(0, 0, bmp.getWidth(), bmp.getHeight());
-    dirty &= invalidatedArea;
-    if ((bmp.getId() != BITMAP_INVALID) && !dirty.isEmpty())
+    Bitmap bitmap = getCurrentlyDisplayedBitmap();
+    if (bitmap.getId() != BITMAP_INVALID)
     {
-        Rect r;
-        translateRectToAbsolute(r);
-        HAL::lcd().drawPartialBitmap(bmp, r.x, r.y, dirty, alpha);
+        Rect meAbs;
+        translateRectToAbsolute(meAbs); //To find our x and y coords in absolute.
+
+        // Calculate intersection between bitmap rect and invalidated area.
+        Rect dirtyBitmapArea = bitmap.getRect() & invalidatedArea;
+
+        if (!dirtyBitmapArea.isEmpty())
+        {
+            HAL::lcd().drawPartialBitmap(bitmap, meAbs.x, meAbs.y, dirtyBitmapArea, alpha);
+        }
     }
 }
 
@@ -59,8 +64,7 @@ void RadioButton::setBitmaps(const Bitmap& bmpUnselected, const Bitmap& bmpUnsel
     bitmapSelected = bmpSelected;
     bitmapSelectedPressed = bmpSelectedPressed;
 
-    Drawable::setWidth(bitmapUnselected.getWidth());
-    Drawable::setHeight(bitmapUnselected.getHeight());
+    RadioButton::setWidthHeight(bitmapUnselected);
 }
 
 Rect RadioButton::getSolidRect() const
@@ -80,18 +84,12 @@ void RadioButton::setSelected(bool newSelected)
 
     if (wasSelected && !newSelected)
     {
-        if (deselectedAction && deselectedAction->isValid())
-        {
-            deselectedAction->execute(*this);
-        }
+        executeDeselectedAction();
     }
 
     if (!wasSelected && newSelected)
     {
-        if (action && action->isValid())
-        {
-            action->execute(*this);
-        }
+        executeAction();
     }
 
     invalidate();

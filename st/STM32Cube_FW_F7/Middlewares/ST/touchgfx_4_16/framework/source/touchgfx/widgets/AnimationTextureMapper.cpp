@@ -1,6 +1,6 @@
 /**
   ******************************************************************************
-  * This file is part of the TouchGFX 4.15.0 distribution.
+  * This file is part of the TouchGFX 4.16.0 distribution.
   *
   * <h2><center>&copy; Copyright (c) 2020 STMicroelectronics.
   * All rights reserved.</center></h2>
@@ -17,12 +17,12 @@
 
 namespace touchgfx
 {
-AnimationTextureMapper::AnimationTextureMapper() :
-    TextureMapper(),
-    textureMapperAnimationStepCallback(0),
-    textureMapperAnimationEndedCallback(0),
-    animationCounter(0),
-    animationRunning(false)
+AnimationTextureMapper::AnimationTextureMapper()
+    : TextureMapper(),
+      textureMapperAnimationStepCallback(0),
+      textureMapperAnimationEndedCallback(0),
+      animationCounter(0),
+      animationRunning(false)
 {
     for (int i = 0; i < NUMBER_OF_ANIMATION_PARAMETERS; i++)
     {
@@ -66,6 +66,16 @@ void AnimationTextureMapper::startAnimation()
     animations[SCALE].animationStart = scale;
 
     animationRunning = true;
+
+    for (int i = 0; i < NUMBER_OF_ANIMATION_PARAMETERS; i++)
+    {
+        if (animations[i].animationActive && animations[i].animationDelay + animations[i].animationDuration > 0)
+        {
+            return; // Animation needs to run, return
+        }
+    }
+    // No active animations or all active animations have zero steps, execute now!
+    handleTickEvent();
 }
 
 void AnimationTextureMapper::cancelAnimationTextureMapperAnimation()
@@ -88,7 +98,10 @@ void AnimationTextureMapper::handleTickEvent()
 {
     if (animationRunning)
     {
-        AnimationState activeAnimation = ANIMATION_FINISHED;
+        bool newValuesAssigned = false;
+        bool activeAnimationExists = false;
+
+        animationCounter++;
 
         float newXAngle = xAngle;
         float newYAngle = yAngle;
@@ -102,16 +115,8 @@ void AnimationTextureMapper::handleTickEvent()
                 continue;
             }
 
-            if (animationCounter < animations[i].animationDelay && activeAnimation < ANIMATION_DELAYED)
+            if (animationCounter >= animations[i].animationDelay)
             {
-                activeAnimation = ANIMATION_DELAYED;
-            }
-
-            if ((animationCounter >= animations[i].animationDelay) &&
-                    (animationCounter <= (uint32_t)(animations[i].animationDelay + animations[i].animationDuration)))
-            {
-                activeAnimation = ANIMATION_RUNNING;
-
                 // Adjust the used animationCounter for the startup delay
                 uint32_t actualAnimationCounter = animationCounter - animations[i].animationDelay;
 
@@ -148,10 +153,19 @@ void AnimationTextureMapper::handleTickEvent()
                 default:
                     break;
                 }
+                newValuesAssigned = true;
+            }
+            if (animationCounter >= (uint32_t)(animations[i].animationDelay + animations[i].animationDuration))
+            {
+                animations[i].animationActive = false;
+            }
+            else
+            {
+                activeAnimationExists = true;
             }
         }
 
-        if (activeAnimation == ANIMATION_RUNNING)
+        if (newValuesAssigned)
         {
             updateAngles(newXAngle, newYAngle, newZAngle);
             setScale(newScale);
@@ -160,14 +174,8 @@ void AnimationTextureMapper::handleTickEvent()
             {
                 textureMapperAnimationStepCallback->execute(*this);
             }
-
-            animationCounter++;
         }
-        else if (activeAnimation == ANIMATION_DELAYED)
-        {
-            animationCounter++;
-        }
-        else
+        if (!activeAnimationExists)
         {
             // End of animation
             cancelAnimationTextureMapperAnimation();

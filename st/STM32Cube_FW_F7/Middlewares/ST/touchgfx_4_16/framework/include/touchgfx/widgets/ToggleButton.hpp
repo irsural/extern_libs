@@ -1,6 +1,6 @@
 /**
   ******************************************************************************
-  * This file is part of the TouchGFX 4.15.0 distribution.
+  * This file is part of the TouchGFX 4.16.0 distribution.
   *
   * <h2><center>&copy; Copyright (c) 2020 STMicroelectronics.
   * All rights reserved.</center></h2>
@@ -34,11 +34,10 @@ namespace touchgfx
 class ToggleButton : public Button
 {
 public:
-
-    virtual void setBitmaps(const Bitmap& bmpReleased, const Bitmap& bmpPressed)
+    virtual void setBitmaps(const Bitmap& bitmapReleased, const Bitmap& bitmapPressed)
     {
-        originalPressed = bmpPressed;
-        Button::setBitmaps(bmpReleased, bmpPressed);
+        originalPressed = bitmapPressed;
+        Button::setBitmaps(bitmapReleased, bitmapPressed);
     }
 
     /**

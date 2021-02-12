@@ -1,6 +1,6 @@
 /**
   ******************************************************************************
-  * This file is part of the TouchGFX 4.15.0 distribution.
+  * This file is part of the TouchGFX 4.16.0 distribution.
   *
   * <h2><center>&copy; Copyright (c) 2020 STMicroelectronics.
   * All rights reserved.</center></h2>
@@ -330,7 +330,8 @@ void ScrollableContainer::handleGestureEvent(const GestureEvent& evt)
         }
 
         // Force velocity within limits
-        velocityAbsolute = MAX(MIN(velocityAbsolute, maxVelocity), SCROLLBAR_MIN_VELOCITY);
+        velocityAbsolute = MIN(velocityAbsolute, maxVelocity);
+        velocityAbsolute = MAX(velocityAbsolute, SCROLLBAR_MIN_VELOCITY);
 
         // Try to set some reasonable values for how long the resulting scroll should be, and how many ticks is should take
         scrollDuration = velocityAbsolute * scrollDurationSpeedup / scrollDurationSlowdown;
@@ -688,9 +689,9 @@ void ScrollableContainer::setScrollbarsVisible(bool newVisible)
     scrollbarsVisible = newVisible;
 }
 
-void ScrollableContainer::setScrollbarsPermanentlyVisible()
+void ScrollableContainer::setScrollbarsPermanentlyVisible(bool permanentlyVisible /*= true*/)
 {
-    scrollbarsPermanentlyVisible = true;
+    scrollbarsPermanentlyVisible = permanentlyVisible;
     xSlider.setVisible(true);
     ySlider.setVisible(true);
     invalidateScrollbars();

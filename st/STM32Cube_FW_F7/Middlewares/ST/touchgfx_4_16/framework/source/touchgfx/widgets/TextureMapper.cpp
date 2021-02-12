@@ -1,6 +1,6 @@
 /**
   ******************************************************************************
-  * This file is part of the TouchGFX 4.15.0 distribution.
+  * This file is part of the TouchGFX 4.16.0 distribution.
   *
   * <h2><center>&copy; Copyright (c) 2020 STMicroelectronics.
   * All rights reserved.</center></h2>
@@ -21,10 +21,9 @@
 
 namespace touchgfx
 {
-TextureMapper::TextureMapper()
-    : Widget(),
+TextureMapper::TextureMapper(const Bitmap& bitmap /*= Bitmap()*/)
+    : Image(bitmap),
       currentRenderingAlgorithm(NEAREST_NEIGHBOR),
-      alpha(255),
       xBitmapPosition(0.0f),
       yBitmapPosition(0.0f),
       xAngle(0.0f),
@@ -53,11 +52,9 @@ TextureMapper::TextureMapper()
 {
 }
 
-void TextureMapper::setBitmap(const Bitmap& bmp)
+void TextureMapper::setBitmap(const Bitmap& bitmap)
 {
-    bitmap = bmp;
-    setWidth(bitmap.getWidth());
-    setHeight(bitmap.getHeight());
+    Image::setBitmap(bitmap);
     applyTransformation();
 }
 
@@ -68,14 +65,14 @@ void TextureMapper::applyTransformation()
     int imgWidth = Bitmap(bitmap).getWidth() + 1;
     int imgHeight = Bitmap(bitmap).getHeight() + 1;
 
-    touchgfx::Point4 vertices[n] =
+    Point4 vertices[n] =
     {
-        touchgfx::Point4(xBitmapPosition - 1, yBitmapPosition - 1, cameraDistance),
-        touchgfx::Point4(xBitmapPosition - 1 + imgWidth, yBitmapPosition - 1, cameraDistance),
-        touchgfx::Point4(xBitmapPosition - 1 + imgWidth, yBitmapPosition - 1 + imgHeight, cameraDistance),
-        touchgfx::Point4(xBitmapPosition - 1, yBitmapPosition - 1 + imgHeight, cameraDistance),
+        Point4(xBitmapPosition - 1, yBitmapPosition - 1, cameraDistance),
+        Point4(xBitmapPosition - 1 + imgWidth, yBitmapPosition - 1, cameraDistance),
+        Point4(xBitmapPosition - 1 + imgWidth, yBitmapPosition - 1 + imgHeight, cameraDistance),
+        Point4(xBitmapPosition - 1, yBitmapPosition - 1 + imgHeight, cameraDistance),
     };
-    touchgfx::Point4 transformed[n];
+    Point4 transformed[n];
 
     Vector4 center(xOrigo, yOrigo, zOrigo);
 
@@ -159,9 +156,9 @@ void TextureMapper::updateAngles(float newXAngle, float newYAngle, float newZAng
 {
     Rect rBefore = getBoundingRect();
 
-    this->xAngle = newXAngle;
-    this->yAngle = newYAngle;
-    this->zAngle = newZAngle;
+    xAngle = newXAngle;
+    yAngle = newYAngle;
+    zAngle = newZAngle;
 
     applyTransformation();
 
@@ -183,7 +180,7 @@ void TextureMapper::draw(const Rect& invalidatedArea) const
     {
         return;
     }
-    uint16_t* fb = HAL::getInstance()->lockFrameBuffer();
+    uint16_t* fb = 0;
 
     // Setup texture coordinates
     float right = (float)(bitmap.getWidth());
@@ -301,8 +298,6 @@ void TextureMapper::draw(const Rect& invalidatedArea) const
     }
 
     drawTriangle(invalidatedArea, fb, triangleXs, triangleYs, triangleZs, triangleUs, triangleVs);
-
-    HAL::getInstance()->unlockFrameBuffer();
 }
 
 void TextureMapper::drawTriangle(const Rect& invalidatedArea, uint16_t* fb, const float* triangleXs, const float* triangleYs, const float* triangleZs, const float* triangleUs, const float* triangleVs) const

@@ -1,6 +1,6 @@
 /**
   ******************************************************************************
-  * This file is part of the TouchGFX 4.15.0 distribution.
+  * This file is part of the TouchGFX 4.16.0 distribution.
   *
   * <h2><center>&copy; Copyright (c) 2020 STMicroelectronics.
   * All rights reserved.</center></h2>
@@ -42,27 +42,26 @@ void PainterGRAY2Bitmap::render(uint8_t* ptr, int x, int xAdjust, int y, unsigne
         count = bitmapRectToFrameBuffer.width - currentX;
     }
 
-    uint8_t totalAlpha = LCD::div255(widgetAlpha * painterAlpha);
+    const uint8_t totalAlpha = LCD::div255(widgetAlpha * painterAlpha);
     if (bitmapAlphaPointer)
     {
         if (totalAlpha == 0xFF)
         {
             do
             {
-                uint8_t gray = LCD2getPixel(bitmapGRAY2Pointer, currentX);
-                uint8_t alpha = LCD::div255((*covers) * (LCD2getPixel(bitmapAlphaPointer, currentX) * 0x55));
-                covers++;
+                const uint8_t gray = LCD2bpp::getPixel(bitmapGRAY2Pointer, currentX);
+                const uint8_t alpha = LCD::div255((*covers++) * (LCD2bpp::getPixel(bitmapAlphaPointer, currentX) * 0x55));
 
                 if (alpha == 0xFF)
                 {
                     // Render a solid pixel
-                    LCD2setPixel(ptr, x, gray);
+                    LCD2bpp::setPixel(ptr, x, gray);
                 }
                 else
                 {
-                    uint8_t ialpha = 0xFF - alpha;
-                    uint8_t p_gray = LCD2getPixel(ptr, x);
-                    LCD2setPixel(ptr, x, LCD::div255((gray * alpha + p_gray * ialpha) * 0x55) >> 6);
+                    const uint8_t ialpha = 0xFF - alpha;
+                    const uint8_t p_gray = LCD2bpp::getPixel(ptr, x);
+                    LCD2bpp::setPixel(ptr, x, LCD::div255((gray * alpha + p_gray * ialpha) * 0x55) >> 6);
                 }
                 currentX++;
                 x++;
@@ -72,13 +71,12 @@ void PainterGRAY2Bitmap::render(uint8_t* ptr, int x, int xAdjust, int y, unsigne
         {
             do
             {
-                uint8_t gray = LCD2getPixel(bitmapGRAY2Pointer, currentX);
-                uint8_t alpha = LCD::div255((*covers) * LCD::div255(totalAlpha * (LCD2getPixel(bitmapAlphaPointer, currentX) * 0x55)));
-                uint8_t ialpha = 0xFF - alpha;
-                covers++;
+                const uint8_t gray = LCD2bpp::getPixel(bitmapGRAY2Pointer, currentX);
+                const uint8_t alpha = LCD::div255((*covers++) * LCD::div255(totalAlpha * (LCD2bpp::getPixel(bitmapAlphaPointer, currentX) * 0x55)));
+                const uint8_t ialpha = 0xFF - alpha;
 
-                uint8_t p_gray = LCD2getPixel(ptr, x);
-                LCD2setPixel(ptr, x, LCD::div255((gray * alpha + p_gray * ialpha) * 0x55) >> 6);
+                const uint8_t p_gray = LCD2bpp::getPixel(ptr, x);
+                LCD2bpp::setPixel(ptr, x, LCD::div255((gray * alpha + p_gray * ialpha) * 0x55) >> 6);
                 currentX++;
                 x++;
             } while (--count != 0);
@@ -90,20 +88,19 @@ void PainterGRAY2Bitmap::render(uint8_t* ptr, int x, int xAdjust, int y, unsigne
         {
             do
             {
-                uint8_t gray = LCD2getPixel(bitmapGRAY2Pointer, currentX);
-                uint8_t alpha = (*covers);
-                covers++;
+                const uint8_t gray = LCD2bpp::getPixel(bitmapGRAY2Pointer, currentX);
+                const uint8_t alpha = *covers++;
 
                 if (alpha == 255)
                 {
                     // Render a solid pixel
-                    LCD2setPixel(ptr, x, gray);
+                    LCD2bpp::setPixel(ptr, x, gray);
                 }
                 else
                 {
-                    uint8_t ialpha = 0xFF - alpha;
-                    uint8_t p_gray = LCD2getPixel(ptr, x);
-                    LCD2setPixel(ptr, x, LCD::div255((gray * alpha + p_gray * ialpha) * 0x55) >> 6);
+                    const uint8_t ialpha = 0xFF - alpha;
+                    const uint8_t p_gray = LCD2bpp::getPixel(ptr, x);
+                    LCD2bpp::setPixel(ptr, x, LCD::div255((gray * alpha + p_gray * ialpha) * 0x55) >> 6);
                 }
                 currentX++;
                 x++;
@@ -113,13 +110,12 @@ void PainterGRAY2Bitmap::render(uint8_t* ptr, int x, int xAdjust, int y, unsigne
         {
             do
             {
-                uint8_t gray = LCD2getPixel(bitmapGRAY2Pointer, currentX);
-                uint8_t alpha = LCD::div255((*covers) * totalAlpha);
-                uint8_t ialpha = 0xFF - alpha;
-                covers++;
+                const uint8_t gray = LCD2bpp::getPixel(bitmapGRAY2Pointer, currentX);
+                const uint8_t alpha = LCD::div255((*covers++) * totalAlpha);
+                const uint8_t ialpha = 0xFF - alpha;
 
-                uint8_t p_gray = LCD2getPixel(ptr, x);
-                LCD2setPixel(ptr, x, LCD::div255((gray * alpha + p_gray * ialpha) * 0x55) >> 6);
+                const uint8_t p_gray = LCD2bpp::getPixel(ptr, x);
+                LCD2bpp::setPixel(ptr, x, LCD::div255((gray * alpha + p_gray * ialpha) * 0x55) >> 6);
                 currentX++;
                 x++;
             } while (--count != 0);
@@ -171,10 +167,10 @@ bool PainterGRAY2Bitmap::renderNext(uint8_t& gray, uint8_t& alpha)
 
     if (bitmapGRAY2Pointer != 0)
     {
-        gray = LCD2getPixel(bitmapGRAY2Pointer, currentX);
+        gray = LCD2bpp::getPixel(bitmapGRAY2Pointer, currentX);
         if (bitmapAlphaPointer)
         {
-            alpha = LCD2getPixel(bitmapAlphaPointer, currentX);
+            alpha = LCD2bpp::getPixel(bitmapAlphaPointer, currentX);
             alpha *= 0x55; // Upscale from 00-03 to 00-FF
         }
         else

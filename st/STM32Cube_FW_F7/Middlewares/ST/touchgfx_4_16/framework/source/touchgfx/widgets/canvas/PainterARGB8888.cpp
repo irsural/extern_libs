@@ -1,6 +1,6 @@
 /**
   ******************************************************************************
-  * This file is part of the TouchGFX 4.15.0 distribution.
+  * This file is part of the TouchGFX 4.16.0 distribution.
   *
   * <h2><center>&copy; Copyright (c) 2020 STMicroelectronics.
   * All rights reserved.</center></h2>
@@ -21,12 +21,12 @@ void PainterARGB8888::render(uint8_t* ptr, int x, int xAdjust, int /*y*/, unsign
 {
     uint8_t* p = reinterpret_cast<uint8_t*>(ptr) + ((x + xAdjust) * 4);
     uint8_t pByte;
-    uint8_t totalAlpha = LCD::div255(widgetAlpha * painterAlpha);
+    const uint8_t totalAlpha = LCD::div255(widgetAlpha * painterAlpha);
     if (totalAlpha == 0xFF)
     {
         do
         {
-            uint8_t alpha = *covers++;
+            const uint8_t alpha = *covers++;
             if (alpha == 0xFF)
             {
                 *p++ = painterBlue;
@@ -36,7 +36,7 @@ void PainterARGB8888::render(uint8_t* ptr, int x, int xAdjust, int /*y*/, unsign
             }
             else
             {
-                uint8_t ialpha = 0xFF - alpha;
+                const uint8_t ialpha = 0xFF - alpha;
                 pByte = *p;
                 *p++ = LCD::div255(painterBlue * alpha + pByte * ialpha);
                 pByte = *p;
@@ -52,8 +52,8 @@ void PainterARGB8888::render(uint8_t* ptr, int x, int xAdjust, int /*y*/, unsign
     {
         do
         {
-            uint8_t alpha = LCD::div255(*covers++ * totalAlpha);
-            uint8_t ialpha = 0xFF - alpha;
+            const uint8_t alpha = LCD::div255(*covers++ * totalAlpha);
+            const uint8_t ialpha = 0xFF - alpha;
             pByte = *p;
             *p++ = LCD::div255(painterBlue * alpha + pByte * ialpha);
             pByte = *p;

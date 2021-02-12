@@ -1,5 +1,5 @@
 ##############################################################################
-# This file is part of the TouchGFX 4.15.0 distribution.
+# This file is part of the TouchGFX 4.16.0 distribution.
 #
 # <h2><center>&copy; Copyright (c) 2020 STMicroelectronics.
 # All rights reserved.</center></h2>
@@ -14,9 +14,9 @@
 class TypedTextDatabaseCpp < Template
   TypedTextPresenter = Struct.new(:alignment, :direction, :typography)
 
-  def initialize(text_entries, typographies, output_directory, generate_binary_language_files, generate_font_format)
+  def initialize(text_entries, typographies, output_directory, generate_binary_translations, generate_font_format)
     super(text_entries, typographies, output_directory)
-    @generate_binary_language_files = generate_binary_language_files
+    @generate_binary_translations = generate_binary_translations
     @generate_font_format = generate_font_format
     @cache = {}
   end
@@ -86,7 +86,7 @@ class TypedTextDatabaseCpp < Template
   end
 
   def generate_binary_files?
-    @generate_binary_language_files=="yes"
+    @generate_binary_translations=="yes"
   end
 
   def layouts

@@ -1,6 +1,6 @@
 /**
   ******************************************************************************
-  * This file is part of the TouchGFX 4.15.0 distribution.
+  * This file is part of the TouchGFX 4.16.0 distribution.
   *
   * <h2><center>&copy; Copyright (c) 2020 STMicroelectronics.
   * All rights reserved.</center></h2>
@@ -60,6 +60,8 @@ public:
      * @param  backgroundBitmapId Identifier for the background bitmap.
      * @param  rotationCenterX    The rotation center x coordinate.
      * @param  rotationCenterY    The rotation center y coordinate.
+     *
+     * @see setBackground(BitmapId), setRotationCenter
      */
     virtual void setBackground(const BitmapId backgroundBitmapId, int16_t rotationCenterX, int16_t rotationCenterY);
 
@@ -205,6 +207,15 @@ public:
      * @note that this does not affect any selected presentation formats.
      */
     virtual void initializeTime12Hour(uint8_t hour, uint8_t minute, uint8_t second, bool am);
+
+    /**
+     * @copydoc Image::setAlpha
+     * @note The alpha value is reflected in the background image
+     */
+    virtual void setAlpha(uint8_t newAlpha);
+
+    /** @copydoc Image::getAlpha() */
+    virtual uint8_t getAlpha() const;
 
 protected:
     Image background; ///< The background image of the AnalogClock

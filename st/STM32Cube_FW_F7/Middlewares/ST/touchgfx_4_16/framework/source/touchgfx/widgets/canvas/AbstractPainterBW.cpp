@@ -1,6 +1,6 @@
 /**
   ******************************************************************************
-  * This file is part of the TouchGFX 4.15.0 distribution.
+  * This file is part of the TouchGFX 4.16.0 distribution.
   *
   * <h2><center>&copy; Copyright (c) 2020 STMicroelectronics.
   * All rights reserved.</center></h2>
@@ -22,7 +22,7 @@ void AbstractPainterBW::render(uint8_t* ptr,
                                int xAdjust,
                                int y,
                                unsigned count,
-                               const uint8_t* /*covers*/)
+                               const uint8_t* covers)
 {
     currentX = x + areaOffsetX;
     currentY = y + areaOffsetY;
@@ -34,26 +34,62 @@ void AbstractPainterBW::render(uint8_t* ptr,
         return;
     }
 
-    do
+    const uint8_t totalAlpha = LCD::div255(widgetAlpha * painterAlpha);
+    if (totalAlpha == 0xFF)
     {
-        uint8_t color;
-        if (renderNext(color))
+        do
         {
-            unsigned pixel = 1 << (7 - (x % 8));
-            if (!color)
+            uint8_t color;
+            if (renderNext(color))
             {
-                *p &= ~pixel;
+                if (*covers >= 0x80)
+                {
+                    unsigned pixel = 1 << (7 - (x % 8));
+                    if (!color)
+                    {
+                        *p &= ~pixel;
+                    }
+                    else
+                    {
+                        *p |= pixel;
+                    }
+                }
             }
-            else
+            if (((++x) % 8) == 0)
             {
-                *p |= pixel;
+                p++;
             }
-        }
-        if (((++x) % 8) == 0)
+            covers++;
+            currentX++;
+        } while (--count);
+    }
+    else
+    {
+        do
         {
-            p++;
-        }
-        currentX++;
-    } while (--count);
+            uint8_t color;
+            if (renderNext(color))
+            {
+                if (totalAlpha * *covers >= 0xFF * 0x80)
+                {
+                    unsigned pixel = 1 << (7 - (x % 8));
+                    if (!color)
+                    {
+                        *p &= ~pixel;
+                    }
+                    else
+                    {
+                        *p |= pixel;
+                    }
+                }
+            }
+            if (((++x) % 8) == 0)
+            {
+                p++;
+            }
+            covers++;
+            currentX++;
+        } while (--count);
+    }
 }
 } // namespace touchgfx

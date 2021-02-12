@@ -1,6 +1,6 @@
 /**
   ******************************************************************************
-  * This file is part of the TouchGFX 4.15.0 distribution.
+  * This file is part of the TouchGFX 4.16.0 distribution.
   *
   * <h2><center>&copy; Copyright (c) 2020 STMicroelectronics.
   * All rights reserved.</center></h2>
@@ -41,24 +41,6 @@ class CoverTransition : public Transition
 {
 public:
     /**
-     * A Widget that returns a solid rect of the same size as the application (i.e. the size
-     * of the display).
-     */
-    class FullSolidRect : public Widget
-    {
-    public:
-
-        virtual Rect getSolidRect() const
-        {
-            return Rect(0U, 0U, HAL::DISPLAY_WIDTH, HAL::DISPLAY_HEIGHT);
-        }
-
-        virtual void draw(const Rect& area) const
-        {
-        }
-    };
-
-    /**
      * Initializes a new instance of the CoverTransition class.
      *
      * @param  transitionSteps (Optional) Number of steps in the transition animation.
@@ -66,14 +48,13 @@ public:
     CoverTransition(const uint8_t transitionSteps = 20)
         : Transition(),
           handleTickCallback(this, &CoverTransition::tickMoveDrawable),
-          direction(templateDirection),
           animationSteps(transitionSteps),
           animationCounter(0),
           calculatedValue(0),
           movedToPos(0),
           solid()
     {
-        switch (direction)
+        switch (templateDirection)
         {
         case EAST:
             targetValue = -HAL::DISPLAY_WIDTH;
@@ -141,7 +122,7 @@ public:
         if (animationCounter == 1 && HAL::USE_DOUBLE_BUFFERING)
         {
             Rect rect;
-            switch (direction)
+            switch (templateDirection)
             {
             case EAST:
                 rect.x = 0;
@@ -211,7 +192,7 @@ protected:
      */
     virtual void initMoveDrawable(Drawable& d)
     {
-        switch (direction)
+        switch (templateDirection)
         {
         case EAST:
             d.moveRelative(HAL::DISPLAY_WIDTH, 0);
@@ -238,7 +219,7 @@ protected:
      */
     virtual void tickMoveDrawable(Drawable& d)
     {
-        switch (direction)
+        switch (templateDirection)
         {
         case EAST:
         case WEST:
@@ -256,9 +237,21 @@ protected:
     }
 
 private:
+    class FullSolidRect : public Widget
+    {
+    public:
+        virtual Rect getSolidRect() const
+        {
+            return Rect(0, 0, getWidth(), getHeight());
+        }
+
+        virtual void draw(const Rect& area) const
+        {
+        }
+    };
+
     Callback<CoverTransition, Drawable&> handleTickCallback; ///< Callback used for tickMoveDrawable().
 
-    Direction direction;          ///< The direction of the transition.
     const uint8_t animationSteps; ///< Number of steps the transition should move per complete animation.
     uint8_t animationCounter;     ///< Current step in the transition animation.
     int16_t targetValue;          ///< The target value for the transition animation.

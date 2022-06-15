@@ -1124,7 +1124,7 @@ typedef struct
 /** @defgroup UART_Private_Variables   UART Private Variables
   * @{
   */
-static const uint16_t UARTPrescTable[12] = {1, 2, 4, 6, 8, 10, 12, 16, 32, 64, 128, 256};
+__attribute__((unused)) static const uint16_t UARTPrescTable[12] = {1, 2, 4, 6, 8, 10, 12, 16, 32, 64, 128, 256};
 /**
   * @}
   */

@@ -87,9 +87,9 @@ POST_INSTALL = :
 NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
-build_triplet = x86_64-pc-linux-gnu
-host_triplet = x86_64-pc-linux-gnu
-am__append_1 = os/linux_udev.c
+build_triplet = x86_64-pc-mingw64
+host_triplet = x86_64-pc-mingw64
+##am__append_1 = os/linux_udev.c
 #am__append_2 = os/linux_netlink.c
 subdir = libusb
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -148,15 +148,15 @@ am__libusb_1_0_la_SOURCES_DIST = libusbi.h libusb.h version.h \
 am__dirstamp = $(am__leading_dot)dirstamp
 am__objects_1 = os/libusb_1_0_la-poll_windows.lo
 am__objects_2 = os/libusb_1_0_la-poll_posix.lo
-#am__objects_3 = $(am__objects_1)
-am__objects_3 = $(am__objects_2)
+am__objects_3 = $(am__objects_1)
+#am__objects_3 = $(am__objects_2)
 am__objects_4 = os/libusb_1_0_la-threads_windows.lo
 am__objects_5 = os/libusb_1_0_la-threads_posix.lo
-#am__objects_6 = $(am__objects_4)
-am__objects_6 = $(am__objects_5)
+am__objects_6 = $(am__objects_4)
+#am__objects_6 = $(am__objects_5)
 am__objects_7 = os/libusb_1_0_la-darwin_usb.lo
-am__objects_8 =  \
-	os/libusb_1_0_la-linux_udev.lo
+##am__objects_8 =  \
+##	os/libusb_1_0_la-linux_udev.lo
 #am__objects_9 = os/libusb_1_0_la-linux_netlink.lo
 am__objects_10 = os/libusb_1_0_la-linux_usbfs.lo
 am__objects_11 = os/libusb_1_0_la-netbsd_usb.lo
@@ -166,14 +166,14 @@ am__objects_14 = os/libusb_1_0_la-sunos_usb.lo
 am__objects_15 = libusb-1.0.lo os/libusb_1_0_la-windows_common.lo \
 	os/libusb_1_0_la-windows_usbdk.lo \
 	os/libusb_1_0_la-windows_winusb.lo
-##am__objects_16 = $(am__objects_15)
-##am__objects_16 = $(am__objects_14)
-##am__objects_16 = $(am__objects_13)
-##am__objects_16 = $(am__objects_12)
-##am__objects_16 = $(am__objects_11)
-am__objects_16 = $(am__objects_10) \
-	$(am__objects_8) \
-	$(am__objects_9)
+am__objects_16 = $(am__objects_15)
+#am__objects_16 = $(am__objects_14)
+#am__objects_16 = $(am__objects_13)
+#am__objects_16 = $(am__objects_12)
+#am__objects_16 = $(am__objects_11)
+#am__objects_16 = $(am__objects_10) \
+#	$(am__objects_8) \
+#	$(am__objects_9)
 #am__objects_16 = $(am__objects_7) $(am__objects_8) \
 #	$(am__objects_9)
 am_libusb_1_0_la_OBJECTS = libusb_1_0_la-core.lo \
@@ -182,8 +182,8 @@ am_libusb_1_0_la_OBJECTS = libusb_1_0_la-core.lo \
 	libusb_1_0_la-sync.lo $(am__objects_3) $(am__objects_6) \
 	$(am__objects_16)
 libusb_1_0_la_OBJECTS = $(am_libusb_1_0_la_OBJECTS)
-AM_V_lt = $(am__v_lt_$(V))
-am__v_lt_ = $(am__v_lt_$(AM_DEFAULT_VERBOSITY))
+AM_V_lt = $(am__v_lt_0)
+am__v_lt_ = $(am__v_lt_0)
 am__v_lt_0 = --silent
 am__v_lt_1 = 
 libusb_1_0_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
@@ -198,16 +198,16 @@ am__objects_17 = os/haiku_usb_backend.lo os/haiku_pollfs.lo \
 #am_libusb_haiku_la_OBJECTS = $(am__objects_17)
 libusb_haiku_la_OBJECTS = $(am_libusb_haiku_la_OBJECTS)
 #am_libusb_haiku_la_rpath =
-AM_V_P = $(am__v_P_$(V))
-am__v_P_ = $(am__v_P_$(AM_DEFAULT_VERBOSITY))
+AM_V_P = $(am__v_P_0)
+am__v_P_ = $(am__v_P_0)
 am__v_P_0 = false
 am__v_P_1 = :
-AM_V_GEN = $(am__v_GEN_$(V))
-am__v_GEN_ = $(am__v_GEN_$(AM_DEFAULT_VERBOSITY))
+AM_V_GEN = $(am__v_GEN_0)
+am__v_GEN_ = $(am__v_GEN_0)
 am__v_GEN_0 = @echo "  GEN     " $@;
 am__v_GEN_1 = 
-AM_V_at = $(am__v_at_$(V))
-am__v_at_ = $(am__v_at_$(AM_DEFAULT_VERBOSITY))
+AM_V_at = $(am__v_at_0)
+am__v_at_ = $(am__v_at_0)
 am__v_at_0 = @
 am__v_at_1 = 
 DEFAULT_INCLUDES = -I. -I$(top_builddir)
@@ -220,16 +220,16 @@ LTCOMPILE = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) \
 	$(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) \
 	$(AM_CFLAGS) $(CFLAGS)
-AM_V_CC = $(am__v_CC_$(V))
-am__v_CC_ = $(am__v_CC_$(AM_DEFAULT_VERBOSITY))
+AM_V_CC = $(am__v_CC_0)
+am__v_CC_ = $(am__v_CC_0)
 am__v_CC_0 = @echo "  CC      " $@;
 am__v_CC_1 = 
 CCLD = $(CC)
 LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
 	$(AM_LDFLAGS) $(LDFLAGS) -o $@
-AM_V_CCLD = $(am__v_CCLD_$(V))
-am__v_CCLD_ = $(am__v_CCLD_$(AM_DEFAULT_VERBOSITY))
+AM_V_CCLD = $(am__v_CCLD_0)
+am__v_CCLD_ = $(am__v_CCLD_0)
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
@@ -238,16 +238,16 @@ LTCXXCOMPILE = $(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) \
 	$(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) \
 	$(AM_CXXFLAGS) $(CXXFLAGS)
-AM_V_CXX = $(am__v_CXX_$(V))
-am__v_CXX_ = $(am__v_CXX_$(AM_DEFAULT_VERBOSITY))
+AM_V_CXX = $(am__v_CXX_0)
+am__v_CXX_ = $(am__v_CXX_0)
 am__v_CXX_0 = @echo "  CXX     " $@;
 am__v_CXX_1 = 
 CXXLD = $(CXX)
 CXXLINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(AM_CXXFLAGS) \
 	$(CXXFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
-AM_V_CXXLD = $(am__v_CXXLD_$(V))
-am__v_CXXLD_ = $(am__v_CXXLD_$(AM_DEFAULT_VERBOSITY))
+AM_V_CXXLD = $(am__v_CXXLD_0)
+am__v_CXXLD_ = $(am__v_CXXLD_0)
 am__v_CXXLD_0 = @echo "  CXXLD   " $@;
 am__v_CXXLD_1 = 
 SOURCES = $(libusb_1_0_la_SOURCES) $(libusb_haiku_la_SOURCES)
@@ -280,56 +280,56 @@ ETAGS = etags
 CTAGS = ctags
 am__DIST_COMMON = $(srcdir)/Makefile.in $(top_srcdir)/depcomp
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
-ACLOCAL = ${SHELL} /home/astra/Загрузки/proj/clb_driver_dll/extern_libs/libusb-master/missing aclocal-1.15
+ACLOCAL = ${SHELL} "/c/Users/503/Desktop/Qt Projects/clb_driver_dll_included/clb_driver_dll/extern_libs/libusb-master/missing" aclocal-1.15
 AMTAR = $${TAR-tar}
-AM_CFLAGS =  -std=gnu11 -Wall -Wundef -Wunused -Wstrict-prototypes -Werror-implicit-function-declaration -Wno-pointer-sign -Wshadow -pthread 
+AM_CFLAGS =  -fno-omit-frame-pointer -std=gnu11 -Wall -Wundef -Wunused -Wstrict-prototypes -Werror-implicit-function-declaration -Wno-pointer-sign -Wshadow  -fvisibility=hidden
 AM_DEFAULT_VERBOSITY = 0
 AR = ar
-AUTOCONF = ${SHELL} /home/astra/Загрузки/proj/clb_driver_dll/extern_libs/libusb-master/missing autoconf
-AUTOHEADER = ${SHELL} /home/astra/Загрузки/proj/clb_driver_dll/extern_libs/libusb-master/missing autoheader
-AUTOMAKE = ${SHELL} /home/astra/Загрузки/proj/clb_driver_dll/extern_libs/libusb-master/missing automake-1.15
+AUTOCONF = ${SHELL} "/c/Users/503/Desktop/Qt Projects/clb_driver_dll_included/clb_driver_dll/extern_libs/libusb-master/missing" autoconf
+AUTOHEADER = ${SHELL} "/c/Users/503/Desktop/Qt Projects/clb_driver_dll_included/clb_driver_dll/extern_libs/libusb-master/missing" autoheader
+AUTOMAKE = ${SHELL} "/c/Users/503/Desktop/Qt Projects/clb_driver_dll_included/clb_driver_dll/extern_libs/libusb-master/missing" automake-1.15
 AWK = gawk
 CC = gcc
 CCDEPMODE = depmode=gcc3
-CFLAGS = -Wall -Wextra -Wbad-function-cast -Wchar-subscripts -Wempty-body -Wformat -Wformat-security -Winit-self -Winline -Wmissing-declarations -Wmissing-include-dirs -Wmissing-prototypes -Wnested-externs -Wold-style-definition -Wpointer-arith -Wredundant-decls -Wshadow -Wstrict-prototypes -Wswitch-enum -Wundef -Wuninitialized -Wunused -Wwrite-strings -Wno-unused-parameter -Wno-unused-function -Wno-deprecated-declarations -Wno-incompatible-pointer-types-discards-qualifiers
+CFLAGS = -g -O2
 CPP = gcc -E
 CPPFLAGS = 
 CXX = g++
 CXXCPP = g++ -E
 CXXDEPMODE = depmode=gcc3
 CXXFLAGS = -g -O2
-CYGPATH_W = echo
+CYGPATH_W = cygpath -w
 DEFS = -DHAVE_CONFIG_H
 DEPDIR = .deps
-DLLTOOL = false
+DLLTOOL = dlltool
 DSYMUTIL = 
 DUMPBIN = 
 ECHO_C = 
 ECHO_N = -n
 ECHO_T = 
-EGREP = /bin/grep -E
-EXEEXT = 
-FGREP = /bin/grep -F
-GREP = /bin/grep
+EGREP = /usr/bin/grep -E
+EXEEXT = .exe
+FGREP = /usr/bin/grep -F
+GREP = /usr/bin/grep
 INSTALL = /usr/bin/install -c
 INSTALL_DATA = ${INSTALL} -m 644
 INSTALL_PROGRAM = ${INSTALL}
 INSTALL_SCRIPT = ${INSTALL}
 INSTALL_STRIP_PROGRAM = $(install_sh) -c -s
-LD = /usr/bin/ld -m elf_x86_64
+LD = C:/Qt/Tools/mingw730_32/i686-w64-mingw32/bin/ld.exe
 LDFLAGS = 
 LIBOBJS = 
-LIBS = -ludev  -pthread
+LIBS = 
 LIBTOOL = $(SHELL) $(top_builddir)/libtool
 LIPO = 
-LN_S = ln -s
-LTLDFLAGS = -version-info 2:0:2 -no-undefined
+LN_S = cp -pR
+LTLDFLAGS = -version-info 2:0:2 -no-undefined -avoid-version -Wl,--add-stdcall-alias
 LTLIBOBJS = 
 LT_SYS_LIBRARY_PATH = 
-MAKEINFO = ${SHELL} /home/astra/Загрузки/proj/clb_driver_dll/extern_libs/libusb-master/missing makeinfo
+MAKEINFO = ${SHELL} "/c/Users/503/Desktop/Qt Projects/clb_driver_dll_included/clb_driver_dll/extern_libs/libusb-master/missing" makeinfo
 MANIFEST_TOOL = :
-MKDIR_P = /bin/mkdir -p
-NM = /usr/bin/nm -B
+MKDIR_P = /usr/bin/mkdir -p
+NM = /c/Qt/Tools/mingw730_32/bin/nm -B
 NMEDIT = 
 OBJDUMP = objdump
 OBJEXT = o
@@ -344,30 +344,30 @@ PACKAGE_URL = http://libusb.info
 PACKAGE_VERSION = 1.0.23
 PATH_SEPARATOR = :
 RANLIB = ranlib
-RC = 
-SED = /bin/sed
+RC = windres
+SED = /usr/bin/sed
 SET_MAKE = 
 SHELL = /bin/sh
 STRIP = strip
 VERSION = 1.0.23
-abs_builddir = /home/astra/Загрузки/proj/clb_driver_dll/extern_libs/libusb-master/libusb
-abs_srcdir = /home/astra/Загрузки/proj/clb_driver_dll/extern_libs/libusb-master/libusb
-abs_top_builddir = /home/astra/Загрузки/proj/clb_driver_dll/extern_libs/libusb-master
-abs_top_srcdir = /home/astra/Загрузки/proj/clb_driver_dll/extern_libs/libusb-master
+abs_builddir = /c/Users/503/Desktop/Qt Projects/clb_driver_dll_included/clb_driver_dll/extern_libs/libusb-master/libusb
+abs_srcdir = /c/Users/503/Desktop/Qt Projects/clb_driver_dll_included/clb_driver_dll/extern_libs/libusb-master/libusb
+abs_top_builddir = /c/Users/503/Desktop/Qt Projects/clb_driver_dll_included/clb_driver_dll/extern_libs/libusb-master
+abs_top_srcdir = /c/Users/503/Desktop/Qt Projects/clb_driver_dll_included/clb_driver_dll/extern_libs/libusb-master
 ac_ct_AR = ar
 ac_ct_CC = gcc
 ac_ct_CXX = g++
 ac_ct_DUMPBIN = 
-am__include = include
+am__include = #
 am__leading_dot = .
 am__quote = 
 am__tar = $${TAR-tar} chof - "$$tardir"
 am__untar = $${TAR-tar} xf -
 bindir = ${exec_prefix}/bin
-build = x86_64-pc-linux-gnu
+build = x86_64-pc-mingw64
 build_alias = 
 build_cpu = x86_64
-build_os = linux-gnu
+build_os = mingw64
 build_vendor = pc
 builddir = .
 datadir = ${datarootdir}
@@ -375,15 +375,15 @@ datarootdir = ${prefix}/share
 docdir = ${datarootdir}/doc/${PACKAGE_TARNAME}
 dvidir = ${docdir}
 exec_prefix = ${prefix}
-host = x86_64-pc-linux-gnu
+host = x86_64-pc-mingw64
 host_alias = 
 host_cpu = x86_64
-host_os = linux-gnu
+host_os = mingw64
 host_vendor = pc
 htmldir = ${docdir}
 includedir = ${prefix}/include
 infodir = ${datarootdir}/info
-install_sh = ${SHELL} /home/astra/Загрузки/proj/clb_driver_dll/extern_libs/libusb-master/install-sh
+install_sh = ${SHELL} '/c/Users/503/Desktop/Qt Projects/clb_driver_dll_included/clb_driver_dll/extern_libs/libusb-master/install-sh'
 libdir = ${exec_prefix}/lib
 libexecdir = ${exec_prefix}/libexec
 localedir = ${datarootdir}/locale
@@ -408,12 +408,12 @@ AUTOMAKE_OPTIONS = subdir-objects
 lib_LTLIBRARIES = libusb-1.0.la
 POSIX_POLL_SRC = os/poll_posix.h os/poll_posix.c
 WINDOWS_POLL_SRC = os/poll_windows.h os/poll_windows.c
-#POLL_SRC = $(WINDOWS_POLL_SRC)
-POLL_SRC = $(POSIX_POLL_SRC)
+POLL_SRC = $(WINDOWS_POLL_SRC)
+#POLL_SRC = $(POSIX_POLL_SRC)
 POSIX_THREADS_SRC = os/threads_posix.h os/threads_posix.c
 WINDOWS_THREADS_SRC = os/threads_windows.h os/threads_windows.c
-#THREADS_SRC = $(WINDOWS_THREADS_SRC)
-THREADS_SRC = $(POSIX_THREADS_SRC)
+THREADS_SRC = $(WINDOWS_THREADS_SRC)
+#THREADS_SRC = $(POSIX_THREADS_SRC)
 OS_DARWIN_SRC = os/darwin_usb.h os/darwin_usb.c
 OS_HAIKU_SRC = os/haiku_usb.h os/haiku_usb_backend.cpp \
 	       os/haiku_pollfs.cpp os/haiku_usb_raw.h os/haiku_usb_raw.cpp
@@ -442,13 +442,13 @@ EXTRA_DIST = $(POSIX_POLL_SRC) $(POSIX_THREADS_SRC) \
 
 #OS_SRC = $(OS_DARWIN_SRC) $(am__append_1) \
 #	$(am__append_2)
-OS_SRC = $(OS_LINUX_SRC) $(am__append_1) \
-	$(am__append_2)
+#OS_SRC = $(OS_LINUX_SRC) $(am__append_1) \
+#	$(am__append_2)
 #OS_SRC = $(OS_NETBSD_SRC)
 #OS_SRC = $(OS_NULL_SRC)
 #OS_SRC = $(OS_OPENBSD_SRC)
 #OS_SRC = $(OS_SUNOS_SRC)
-#OS_SRC = $(OS_WINDOWS_SRC)
+OS_SRC = $(OS_WINDOWS_SRC)
 #AM_CFLAGS_EXT = -no-cpp-precomp
 #noinst_LTLIBRARIES = libusb_haiku.la
 #libusb_haiku_la_SOURCES = $(OS_HAIKU_SRC)
@@ -595,30 +595,30 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-include ./$(DEPDIR)/libusb_1_0_la-core.Plo
-include ./$(DEPDIR)/libusb_1_0_la-descriptor.Plo
-include ./$(DEPDIR)/libusb_1_0_la-hotplug.Plo
-include ./$(DEPDIR)/libusb_1_0_la-io.Plo
-include ./$(DEPDIR)/libusb_1_0_la-strerror.Plo
-include ./$(DEPDIR)/libusb_1_0_la-sync.Plo
-include os/$(DEPDIR)/haiku_pollfs.Plo
-include os/$(DEPDIR)/haiku_usb_backend.Plo
-include os/$(DEPDIR)/haiku_usb_raw.Plo
-include os/$(DEPDIR)/libusb_1_0_la-darwin_usb.Plo
-include os/$(DEPDIR)/libusb_1_0_la-linux_netlink.Plo
-include os/$(DEPDIR)/libusb_1_0_la-linux_udev.Plo
-include os/$(DEPDIR)/libusb_1_0_la-linux_usbfs.Plo
-include os/$(DEPDIR)/libusb_1_0_la-netbsd_usb.Plo
-include os/$(DEPDIR)/libusb_1_0_la-null_usb.Plo
-include os/$(DEPDIR)/libusb_1_0_la-openbsd_usb.Plo
-include os/$(DEPDIR)/libusb_1_0_la-poll_posix.Plo
-include os/$(DEPDIR)/libusb_1_0_la-poll_windows.Plo
-include os/$(DEPDIR)/libusb_1_0_la-sunos_usb.Plo
-include os/$(DEPDIR)/libusb_1_0_la-threads_posix.Plo
-include os/$(DEPDIR)/libusb_1_0_la-threads_windows.Plo
-include os/$(DEPDIR)/libusb_1_0_la-windows_common.Plo
-include os/$(DEPDIR)/libusb_1_0_la-windows_usbdk.Plo
-include os/$(DEPDIR)/libusb_1_0_la-windows_winusb.Plo
+# ./$(DEPDIR)/libusb_1_0_la-core.Plo
+# ./$(DEPDIR)/libusb_1_0_la-descriptor.Plo
+# ./$(DEPDIR)/libusb_1_0_la-hotplug.Plo
+# ./$(DEPDIR)/libusb_1_0_la-io.Plo
+# ./$(DEPDIR)/libusb_1_0_la-strerror.Plo
+# ./$(DEPDIR)/libusb_1_0_la-sync.Plo
+# os/$(DEPDIR)/haiku_pollfs.Plo
+# os/$(DEPDIR)/haiku_usb_backend.Plo
+# os/$(DEPDIR)/haiku_usb_raw.Plo
+# os/$(DEPDIR)/libusb_1_0_la-darwin_usb.Plo
+# os/$(DEPDIR)/libusb_1_0_la-linux_netlink.Plo
+# os/$(DEPDIR)/libusb_1_0_la-linux_udev.Plo
+# os/$(DEPDIR)/libusb_1_0_la-linux_usbfs.Plo
+# os/$(DEPDIR)/libusb_1_0_la-netbsd_usb.Plo
+# os/$(DEPDIR)/libusb_1_0_la-null_usb.Plo
+# os/$(DEPDIR)/libusb_1_0_la-openbsd_usb.Plo
+# os/$(DEPDIR)/libusb_1_0_la-poll_posix.Plo
+# os/$(DEPDIR)/libusb_1_0_la-poll_windows.Plo
+# os/$(DEPDIR)/libusb_1_0_la-sunos_usb.Plo
+# os/$(DEPDIR)/libusb_1_0_la-threads_posix.Plo
+# os/$(DEPDIR)/libusb_1_0_la-threads_windows.Plo
+# os/$(DEPDIR)/libusb_1_0_la-windows_common.Plo
+# os/$(DEPDIR)/libusb_1_0_la-windows_usbdk.Plo
+# os/$(DEPDIR)/libusb_1_0_la-windows_winusb.Plo
 
 .c.o:
 	$(AM_V_CC)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\
@@ -1057,14 +1057,14 @@ uninstall-am: uninstall-hdrHEADERS uninstall-libLTLIBRARIES
 
 all: libusb-1.0.la libusb-1.0.dll
 
-#.rc.lo:
-#	$(AM_V_GEN)$(LIBTOOL) $(AM_V_lt) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --tag=RC --mode=compile $(RC) $(RCFLAGS) -i $< -o $@
+.rc.lo:
+	$(AM_V_GEN)$(LIBTOOL) $(AM_V_lt) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --tag=RC --mode=compile $(RC) $(RCFLAGS) -i $< -o $@
 
-#libusb-1.0.rc: version.h version_nano.h
+libusb-1.0.rc: version.h version_nano.h
 
 libusb-1.0.dll: libusb-1.0.def libusb-1.0.la
 # Rebuild the import lib from the .def so that MS and MinGW DLLs can be interchanged
-#	$(AM_V_GEN)$(DLLTOOL) $(DLLTOOLFLAGS) --kill-at --input-def $(srcdir)/libusb-1.0.def --dllname $@ --output-lib .libs/$@.a
+	$(AM_V_GEN)$(DLLTOOL) $(DLLTOOLFLAGS) --kill-at --input-def $(srcdir)/libusb-1.0.def --dllname $@ --output-lib .libs/$@.a
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

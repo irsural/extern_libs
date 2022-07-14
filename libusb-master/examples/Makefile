@@ -86,14 +86,14 @@ POST_INSTALL = :
 NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
-build_triplet = x86_64-pc-linux-gnu
-host_triplet = x86_64-pc-linux-gnu
+build_triplet = x86_64-pc-mingw64
+host_triplet = x86_64-pc-mingw64
 noinst_PROGRAMS = listdevs$(EXEEXT) xusb$(EXEEXT) fxload$(EXEEXT) \
 	hotplugtest$(EXEEXT) testlibusb$(EXEEXT) $(am__EXEEXT_1) \
 	$(am__EXEEXT_2) $(am__EXEEXT_3)
-am__append_1 = dpfp
-am__append_2 = dpfp_threaded
-am__append_3 = sam3u_benchmark
+#am__append_1 = dpfp
+##am__append_2 = dpfp_threaded
+#am__append_3 = sam3u_benchmark
 subdir = examples
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/libtool.m4 \
@@ -107,16 +107,16 @@ mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = $(top_builddir)/config.h
 CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
-am__EXEEXT_1 = dpfp$(EXEEXT)
-am__EXEEXT_2 = dpfp_threaded$(EXEEXT)
-am__EXEEXT_3 = sam3u_benchmark$(EXEEXT)
+#am__EXEEXT_1 = dpfp$(EXEEXT)
+##am__EXEEXT_2 = dpfp_threaded$(EXEEXT)
+#am__EXEEXT_3 = sam3u_benchmark$(EXEEXT)
 PROGRAMS = $(noinst_PROGRAMS)
 dpfp_SOURCES = dpfp.c
 dpfp_OBJECTS = dpfp.$(OBJEXT)
 dpfp_LDADD = $(LDADD)
 dpfp_DEPENDENCIES = ../libusb/libusb-1.0.la
-AM_V_lt = $(am__v_lt_$(V))
-am__v_lt_ = $(am__v_lt_$(AM_DEFAULT_VERBOSITY))
+AM_V_lt = $(am__v_lt_0)
+am__v_lt_ = $(am__v_lt_0)
 am__v_lt_0 = --silent
 am__v_lt_1 = 
 dpfp_threaded_SOURCES = dpfp_threaded.c
@@ -142,8 +142,8 @@ listdevs_OBJECTS = listdevs.$(OBJEXT)
 listdevs_LDADD = $(LDADD)
 listdevs_DEPENDENCIES = ../libusb/libusb-1.0.la
 am__sam3u_benchmark_SOURCES_DIST = sam3u_benchmark.c
-am_sam3u_benchmark_OBJECTS =  \
-	sam3u_benchmark.$(OBJEXT)
+#am_sam3u_benchmark_OBJECTS =  \
+#	sam3u_benchmark.$(OBJEXT)
 sam3u_benchmark_OBJECTS = $(am_sam3u_benchmark_OBJECTS)
 sam3u_benchmark_LDADD = $(LDADD)
 sam3u_benchmark_DEPENDENCIES = ../libusb/libusb-1.0.la
@@ -155,16 +155,16 @@ xusb_SOURCES = xusb.c
 xusb_OBJECTS = xusb.$(OBJEXT)
 xusb_LDADD = $(LDADD)
 xusb_DEPENDENCIES = ../libusb/libusb-1.0.la
-AM_V_P = $(am__v_P_$(V))
-am__v_P_ = $(am__v_P_$(AM_DEFAULT_VERBOSITY))
+AM_V_P = $(am__v_P_0)
+am__v_P_ = $(am__v_P_0)
 am__v_P_0 = false
 am__v_P_1 = :
-AM_V_GEN = $(am__v_GEN_$(V))
-am__v_GEN_ = $(am__v_GEN_$(AM_DEFAULT_VERBOSITY))
+AM_V_GEN = $(am__v_GEN_0)
+am__v_GEN_ = $(am__v_GEN_0)
 am__v_GEN_0 = @echo "  GEN     " $@;
 am__v_GEN_1 = 
-AM_V_at = $(am__v_at_$(V))
-am__v_at_ = $(am__v_at_$(AM_DEFAULT_VERBOSITY))
+AM_V_at = $(am__v_at_0)
+am__v_at_ = $(am__v_at_0)
 am__v_at_0 = @
 am__v_at_1 = 
 DEFAULT_INCLUDES = -I. -I$(top_builddir)
@@ -177,16 +177,16 @@ LTCOMPILE = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) \
 	$(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) \
 	$(AM_CFLAGS) $(CFLAGS)
-AM_V_CC = $(am__v_CC_$(V))
-am__v_CC_ = $(am__v_CC_$(AM_DEFAULT_VERBOSITY))
+AM_V_CC = $(am__v_CC_0)
+am__v_CC_ = $(am__v_CC_0)
 am__v_CC_0 = @echo "  CC      " $@;
 am__v_CC_1 = 
 CCLD = $(CC)
 LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
 	$(AM_LDFLAGS) $(LDFLAGS) -o $@
-AM_V_CCLD = $(am__v_CCLD_$(V))
-am__v_CCLD_ = $(am__v_CCLD_$(AM_DEFAULT_VERBOSITY))
+AM_V_CCLD = $(am__v_CCLD_0)
+am__v_CCLD_ = $(am__v_CCLD_0)
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
 SOURCES = dpfp.c dpfp_threaded.c $(fxload_SOURCES) hotplugtest.c \
@@ -220,56 +220,56 @@ ETAGS = etags
 CTAGS = ctags
 am__DIST_COMMON = $(srcdir)/Makefile.in $(top_srcdir)/depcomp
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
-ACLOCAL = ${SHELL} /home/astra/Загрузки/proj/clb_driver_dll/extern_libs/libusb-master/missing aclocal-1.15
+ACLOCAL = ${SHELL} "/c/Users/503/Desktop/Qt Projects/clb_driver_dll_included/clb_driver_dll/extern_libs/libusb-master/missing" aclocal-1.15
 AMTAR = $${TAR-tar}
-AM_CFLAGS =  -std=gnu11 -Wall -Wundef -Wunused -Wstrict-prototypes -Werror-implicit-function-declaration -Wno-pointer-sign -Wshadow -pthread 
+AM_CFLAGS =  -fno-omit-frame-pointer -std=gnu11 -Wall -Wundef -Wunused -Wstrict-prototypes -Werror-implicit-function-declaration -Wno-pointer-sign -Wshadow  -fvisibility=hidden
 AM_DEFAULT_VERBOSITY = 0
 AR = ar
-AUTOCONF = ${SHELL} /home/astra/Загрузки/proj/clb_driver_dll/extern_libs/libusb-master/missing autoconf
-AUTOHEADER = ${SHELL} /home/astra/Загрузки/proj/clb_driver_dll/extern_libs/libusb-master/missing autoheader
-AUTOMAKE = ${SHELL} /home/astra/Загрузки/proj/clb_driver_dll/extern_libs/libusb-master/missing automake-1.15
+AUTOCONF = ${SHELL} "/c/Users/503/Desktop/Qt Projects/clb_driver_dll_included/clb_driver_dll/extern_libs/libusb-master/missing" autoconf
+AUTOHEADER = ${SHELL} "/c/Users/503/Desktop/Qt Projects/clb_driver_dll_included/clb_driver_dll/extern_libs/libusb-master/missing" autoheader
+AUTOMAKE = ${SHELL} "/c/Users/503/Desktop/Qt Projects/clb_driver_dll_included/clb_driver_dll/extern_libs/libusb-master/missing" automake-1.15
 AWK = gawk
 CC = gcc
 CCDEPMODE = depmode=gcc3
-CFLAGS = -Wall -Wextra -Wbad-function-cast -Wchar-subscripts -Wempty-body -Wformat -Wformat-security -Winit-self -Winline -Wmissing-declarations -Wmissing-include-dirs -Wmissing-prototypes -Wnested-externs -Wold-style-definition -Wpointer-arith -Wredundant-decls -Wshadow -Wstrict-prototypes -Wswitch-enum -Wundef -Wuninitialized -Wunused -Wwrite-strings -Wno-unused-parameter -Wno-unused-function -Wno-deprecated-declarations -Wno-incompatible-pointer-types-discards-qualifiers
+CFLAGS = -g -O2
 CPP = gcc -E
 CPPFLAGS = 
 CXX = g++
 CXXCPP = g++ -E
 CXXDEPMODE = depmode=gcc3
 CXXFLAGS = -g -O2
-CYGPATH_W = echo
+CYGPATH_W = cygpath -w
 DEFS = -DHAVE_CONFIG_H
 DEPDIR = .deps
-DLLTOOL = false
+DLLTOOL = dlltool
 DSYMUTIL = 
 DUMPBIN = 
 ECHO_C = 
 ECHO_N = -n
 ECHO_T = 
-EGREP = /bin/grep -E
-EXEEXT = 
-FGREP = /bin/grep -F
-GREP = /bin/grep
+EGREP = /usr/bin/grep -E
+EXEEXT = .exe
+FGREP = /usr/bin/grep -F
+GREP = /usr/bin/grep
 INSTALL = /usr/bin/install -c
 INSTALL_DATA = ${INSTALL} -m 644
 INSTALL_PROGRAM = ${INSTALL}
 INSTALL_SCRIPT = ${INSTALL}
 INSTALL_STRIP_PROGRAM = $(install_sh) -c -s
-LD = /usr/bin/ld -m elf_x86_64
+LD = C:/Qt/Tools/mingw730_32/i686-w64-mingw32/bin/ld.exe
 LDFLAGS = 
 LIBOBJS = 
-LIBS = -ludev  -pthread
+LIBS = 
 LIBTOOL = $(SHELL) $(top_builddir)/libtool
 LIPO = 
-LN_S = ln -s
-LTLDFLAGS = -version-info 2:0:2 -no-undefined
+LN_S = cp -pR
+LTLDFLAGS = -version-info 2:0:2 -no-undefined -avoid-version -Wl,--add-stdcall-alias
 LTLIBOBJS = 
 LT_SYS_LIBRARY_PATH = 
-MAKEINFO = ${SHELL} /home/astra/Загрузки/proj/clb_driver_dll/extern_libs/libusb-master/missing makeinfo
+MAKEINFO = ${SHELL} "/c/Users/503/Desktop/Qt Projects/clb_driver_dll_included/clb_driver_dll/extern_libs/libusb-master/missing" makeinfo
 MANIFEST_TOOL = :
-MKDIR_P = /bin/mkdir -p
-NM = /usr/bin/nm -B
+MKDIR_P = /usr/bin/mkdir -p
+NM = /c/Qt/Tools/mingw730_32/bin/nm -B
 NMEDIT = 
 OBJDUMP = objdump
 OBJEXT = o
@@ -284,30 +284,30 @@ PACKAGE_URL = http://libusb.info
 PACKAGE_VERSION = 1.0.23
 PATH_SEPARATOR = :
 RANLIB = ranlib
-RC = 
-SED = /bin/sed
+RC = windres
+SED = /usr/bin/sed
 SET_MAKE = 
 SHELL = /bin/sh
 STRIP = strip
 VERSION = 1.0.23
-abs_builddir = /home/astra/Загрузки/proj/clb_driver_dll/extern_libs/libusb-master/examples
-abs_srcdir = /home/astra/Загрузки/proj/clb_driver_dll/extern_libs/libusb-master/examples
-abs_top_builddir = /home/astra/Загрузки/proj/clb_driver_dll/extern_libs/libusb-master
-abs_top_srcdir = /home/astra/Загрузки/proj/clb_driver_dll/extern_libs/libusb-master
+abs_builddir = /c/Users/503/Desktop/Qt Projects/clb_driver_dll_included/clb_driver_dll/extern_libs/libusb-master/examples
+abs_srcdir = /c/Users/503/Desktop/Qt Projects/clb_driver_dll_included/clb_driver_dll/extern_libs/libusb-master/examples
+abs_top_builddir = /c/Users/503/Desktop/Qt Projects/clb_driver_dll_included/clb_driver_dll/extern_libs/libusb-master
+abs_top_srcdir = /c/Users/503/Desktop/Qt Projects/clb_driver_dll_included/clb_driver_dll/extern_libs/libusb-master
 ac_ct_AR = ar
 ac_ct_CC = gcc
 ac_ct_CXX = g++
 ac_ct_DUMPBIN = 
-am__include = include
+am__include = #
 am__leading_dot = .
 am__quote = 
 am__tar = $${TAR-tar} chof - "$$tardir"
 am__untar = $${TAR-tar} xf -
 bindir = ${exec_prefix}/bin
-build = x86_64-pc-linux-gnu
+build = x86_64-pc-mingw64
 build_alias = 
 build_cpu = x86_64
-build_os = linux-gnu
+build_os = mingw64
 build_vendor = pc
 builddir = .
 datadir = ${datarootdir}
@@ -315,15 +315,15 @@ datarootdir = ${prefix}/share
 docdir = ${datarootdir}/doc/${PACKAGE_TARNAME}
 dvidir = ${docdir}
 exec_prefix = ${prefix}
-host = x86_64-pc-linux-gnu
+host = x86_64-pc-mingw64
 host_alias = 
 host_cpu = x86_64
-host_os = linux-gnu
+host_os = mingw64
 host_vendor = pc
 htmldir = ${docdir}
 includedir = ${prefix}/include
 infodir = ${datarootdir}/info
-install_sh = ${SHELL} /home/astra/Загрузки/proj/clb_driver_dll/extern_libs/libusb-master/install-sh
+install_sh = ${SHELL} '/c/Users/503/Desktop/Qt Projects/clb_driver_dll_included/clb_driver_dll/extern_libs/libusb-master/install-sh'
 libdir = ${exec_prefix}/lib
 libexecdir = ${exec_prefix}/libexec
 localedir = ${datarootdir}/locale
@@ -346,8 +346,8 @@ top_builddir = ..
 top_srcdir = ..
 AM_CPPFLAGS = -I$(top_srcdir)/libusb
 LDADD = ../libusb/libusb-1.0.la
-dpfp_threaded_CFLAGS = $(AM_CFLAGS)
-sam3u_benchmark_SOURCES = sam3u_benchmark.c
+##dpfp_threaded_CFLAGS = $(AM_CFLAGS)
+#sam3u_benchmark_SOURCES = sam3u_benchmark.c
 fxload_SOURCES = ezusb.c ezusb.h fxload.c
 fxload_CFLAGS = $(THREAD_CFLAGS) $(AM_CFLAGS)
 all: all-am
@@ -431,15 +431,15 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-include ./$(DEPDIR)/dpfp.Po
-include ./$(DEPDIR)/dpfp_threaded-dpfp_threaded.Po
-include ./$(DEPDIR)/fxload-ezusb.Po
-include ./$(DEPDIR)/fxload-fxload.Po
-include ./$(DEPDIR)/hotplugtest.Po
-include ./$(DEPDIR)/listdevs.Po
-include ./$(DEPDIR)/sam3u_benchmark.Po
-include ./$(DEPDIR)/testlibusb.Po
-include ./$(DEPDIR)/xusb.Po
+# ./$(DEPDIR)/dpfp.Po
+# ./$(DEPDIR)/dpfp_threaded-dpfp_threaded.Po
+# ./$(DEPDIR)/fxload-ezusb.Po
+# ./$(DEPDIR)/fxload-fxload.Po
+# ./$(DEPDIR)/hotplugtest.Po
+# ./$(DEPDIR)/listdevs.Po
+# ./$(DEPDIR)/sam3u_benchmark.Po
+# ./$(DEPDIR)/testlibusb.Po
+# ./$(DEPDIR)/xusb.Po
 
 .c.o:
 	$(AM_V_CC)$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<

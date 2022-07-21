@@ -15,122 +15,165 @@ LU_DEFINE_VERSION_ATOM([LIBUSB_MINOR])
 LU_DEFINE_VERSION_ATOM([LIBUSB_MICRO])
 LU_DEFINE_VERSION_RC_ATOM([LIBUSB_RC])
 
-AC_INIT([libusb],[LIBUSB_MAJOR[.]LIBUSB_MINOR[.]LIBUSB_MICRO[]LIBUSB_RC],[libusb-devel@lists.sourceforge.net],[libusb],[http://libusb.info])
+AC_PREREQ([2.69])
+AC_INIT([libusb-1.0], [LIBUSB_MAJOR[.]LIBUSB_MINOR[.]LIBUSB_MICRO[]LIBUSB_RC], [libusb-devel@lists.sourceforge.net], [libusb-1.0], [http://libusb.info])
+AC_CONFIG_HEADERS([config.h])
+AC_CONFIG_SRCDIR([libusb/core.c])
+AC_CONFIG_MACRO_DIR([m4])
+AC_PROG_CC
+AC_PROG_CXX
+AC_C_INLINE
+AM_INIT_AUTOMAKE
+LT_INIT
+LT_LANG([Windows Resource])
 
 dnl Library versioning
 dnl These numbers should be tweaked on every release. Read carefully:
 dnl http://www.gnu.org/software/libtool/manual/html_node/Updating-version-info.html
 dnl http://sourceware.org/autobook/autobook/autobook_91.html
-lt_current=2
+lt_current=3
 lt_revision=0
-lt_age=2
-LTLDFLAGS="-version-info ${lt_current}:${lt_revision}:${lt_age}"
+lt_age=3
+LT_LDFLAGS="-version-info ${lt_current}:${lt_revision}:${lt_age} -no-undefined"
 
-AM_INIT_AUTOMAKE
-
-AC_CONFIG_SRCDIR([libusb/core.c])
-AC_CONFIG_MACRO_DIR([m4])
-AC_CONFIG_HEADERS([config.h])
 m4_ifdef([AM_SILENT_RULES],[AM_SILENT_RULES([yes])])
 
-AC_PREREQ([2.69])
-AC_PROG_CC
-AC_PROG_CXX
-LT_INIT
-LT_LANG([Windows Resource])
-AC_C_INLINE
-AM_PROG_CC_C_O
-AC_DEFINE([_GNU_SOURCE], [1], [Use GNU extensions])
+EXTRA_CPPFLAGS=
+EXTRA_CFLAGS=
 
-LTLDFLAGS="${LTLDFLAGS} -no-undefined"
+dnl check for -std=gnu11 compiler support (optional)
+dnl note that we don't just check if the compiler accepts '-std=x11'
+dnl but also that it supports the _Thread_local keyword because some compilers
+dnl (e.g. gcc 4.8) accept the command line option but do not implement TLS
+saved_CFLAGS="${CFLAGS}"
+CFLAGS="-std=gnu11"
+AC_MSG_CHECKING([if $CC supports -std=gnu11])
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([_Thread_local int x;], [x = 42;])],
+	[AC_MSG_RESULT([yes])
+	 c_dialect=gnu],
+	[AC_MSG_RESULT([no])
+	 c_dialect=])
+if test "x$c_dialect" != xgnu; then
+	dnl fallback check for -std=c11 compiler support (required)
+	CFLAGS="-std=c11"
+	AC_MSG_CHECKING([if $CC supports -std=c11])
+	AC_COMPILE_IFELSE([AC_LANG_PROGRAM([_Thread_local int x;], [x = 42;])],
+		[AC_MSG_RESULT([yes])],
+		[AC_MSG_RESULT([no])
+		 AC_MSG_ERROR([compiler with C11 support is required to build libusb])])
+	c_dialect=c
+fi
+CFLAGS="${saved_CFLAGS}"
 
+AC_DEFINE([_GNU_SOURCE], [1], [Enable GNU extensions.])
+AC_DEFINE([DEFAULT_VISIBILITY], [__attribute__ ((visibility ("default")))], [Define to the attribute for default visibility.])
+AC_DEFINE([PRINTF_FORMAT(a, b)], [__attribute__ ((__format__ (__printf__, a, b)))], [Define to the attribute for enabling parameter checks on printf-like functions.])
+
+create_import_lib=
+is_android_linux=
 AC_MSG_CHECKING([operating system])
 case $host in
 *-darwin*)
 	AC_MSG_RESULT([Darwin/Mac OS X])
 	backend=darwin
-	poll=posix
-	threads=posix
+	platform=posix
 	;;
 *-haiku*)
 	AC_MSG_RESULT([Haiku])
 	backend=haiku
-	poll=posix
-	threads=posix
+	platform=posix
 	;;
 *-linux* | *-uclinux*)
-	dnl on linux-android platform, some functions are in different places
+	dnl on Android Linux, some functions are in different places
 	case $host in
 	*-linux-android*)
-		AC_MSG_RESULT([Linux (Android system)])
-		is_backend_android=yes
+		AC_MSG_RESULT([Android Linux])
+		is_android_linux=yes
 		;;
 	*)
 		AC_MSG_RESULT([Linux])
-		is_backend_android=no
 		;;
 	esac
 	backend=linux
-	poll=posix
-	threads=posix
+	platform=posix
 	;;
 *-netbsd*)
 	AC_MSG_RESULT([NetBSD])
 	backend=netbsd
-	poll=posix
-	threads=posix
+	platform=posix
 	;;
 *-openbsd*)
 	AC_MSG_RESULT([OpenBSD])
 	backend=openbsd
-	poll=posix
-	threads=posix
+	platform=posix
 	;;
 *-solaris*)
 	AC_MSG_RESULT([SunOS])
 	backend=sunos
-	poll=posix
-	threads=posix
+	platform=posix
 	;;
 *-cygwin*)
 	AC_MSG_RESULT([Windows (using Cygwin)])
 	backend=windows
-	poll=windows
-	threads=posix
+	platform=windows
+	EXTRA_CFLAGS="-mwin32"
 	;;
 *-mingw* | *msys*)
 	AC_MSG_RESULT([Windows])
 	backend=windows
-	poll=windows
-	threads=windows
-	create_import_lib=yes
-	AM_CFLAGS="${AM_CFLAGS} -fno-omit-frame-pointer"
+	platform=windows
+	test "x$enable_shared" = xyes && create_import_lib=yes
+	EXTRA_CFLAGS="-mwin32 -fno-omit-frame-pointer"
 	;;
 *)
 	AC_MSG_RESULT([Null])
-	backend="null"
-	poll=posix
-	threads="posix"
+	AC_MSG_WARN([The host being compiled for is not supported.])
+	AC_MSG_WARN([The library may compile but will not function in any useful manner.])
+	backend=null
+	platform=posix
 	;;
 esac
 
+if test "x$platform" = xposix; then
+	AC_DEFINE([PLATFORM_POSIX], [1], [Define to 1 if compiling for a POSIX platform.])
+	AC_CHECK_TYPES([nfds_t], [], [], [[#include <poll.h>]])
+	AC_CHECK_FUNCS([pipe2])
+	dnl Some compilers do not support the '-pthread' option so check for it here
+	saved_CFLAGS="${CFLAGS}"
+	CFLAGS="-Wall -Werror -pthread"
+	AC_MSG_CHECKING([if $CC recognizes -pthread])
+	AC_COMPILE_IFELSE([AC_LANG_PROGRAM([], [])],
+		[AC_MSG_RESULT([yes])
+		 AC_SUBST(THREAD_CFLAGS, [-pthread])],
+		[AC_MSG_RESULT([no])])
+	CFLAGS="${saved_CFLAGS}"
+	dnl Android Linux and Darwin provide pthread functions directly in libc
+	dnl glibc also provides some pthread functions directly, so search for a thread-specific function
+	AC_SEARCH_LIBS([pthread_create], [pthread],
+		[test "x$ac_cv_search_pthread_create" != "xnone required" && AC_SUBST(THREAD_LIBS, [-lpthread])],
+		[], [])
+elif test "x$platform" = xwindows; then
+	AC_DEFINE([PLATFORM_WINDOWS], [1], [Define to 1 if compiling for a Windows platform.])
+else
+	AC_MSG_ERROR([Unknown platform])
+fi
+
 case $backend in
 darwin)
-	AC_DEFINE([OS_DARWIN], [1], [Darwin backend])
-	LIBS="-lobjc -Wl,-framework,IOKit -Wl,-framework,CoreFoundation"
-	LTLDFLAGS="${LTLDFLAGS} -Wl,-prebind"
+	AC_CHECK_FUNCS([pthread_threadid_np])
+	LIBS="${LIBS} -lobjc -Wl,-framework,IOKit -Wl,-framework,CoreFoundation -Wl,-framework,Security"
+	AC_CHECK_HEADERS([IOKit/usb/IOUSBHostFamilyDefinitions.h])
 	;;
 haiku)
-	AC_DEFINE([OS_HAIKU], [1], [Haiku backend])
-	LIBS="-lbe"
+	LIBS="${LIBS} -lbe"
 	;;
 linux)
-	AC_DEFINE([OS_LINUX], [1], [Linux backend])
-	AC_SEARCH_LIBS([clock_gettime], [rt], [], [], [-pthread])
+	AC_SEARCH_LIBS([clock_gettime], [rt], [], [], [])
+	AC_CHECK_FUNCS([pthread_setname_np])
 	AC_ARG_ENABLE([udev],
-		[AC_HELP_STRING([--enable-udev], [use udev for device enumeration and hotplug support (recommended) [default=yes]])],
-		[], [enable_udev=yes])
-	if test "x$enable_udev" = xyes ; then
+		[AS_HELP_STRING([--enable-udev], [use udev for device enumeration and hotplug support (recommended) [default=yes]])],
+		[use_udev=$enableval], [use_udev=yes])
+	if test "x$use_udev" = xyes; then
 		dnl system has udev. use it or fail!
 		AC_CHECK_HEADER([libudev.h], [], [AC_MSG_ERROR([udev support requested but libudev header not installed])])
 		AC_CHECK_LIB([udev], [udev_new], [], [AC_MSG_ERROR([udev support requested but libudev not installed])])
@@ -139,89 +182,94 @@ linux)
 		AC_CHECK_HEADER([linux/netlink.h], [], [AC_MSG_ERROR([Linux netlink header not found])])
 		AC_CHECK_HEADER([sys/socket.h], [], [AC_MSG_ERROR([Linux socket header not found])])
 	fi
-	if test "x$is_backend_android" != xyes; then
-		THREAD_CFLAGS="-pthread"
-		LIBS="${LIBS} -pthread"
-	fi
-	AC_CHECK_FUNCS([pthread_setname_np])
-	;;
-netbsd)
-	AC_DEFINE([OS_NETBSD], [1], [NetBSD backend])
-	THREAD_CFLAGS="-pthread"
-	LIBS="-pthread"
-	;;
-null)
-	AC_DEFINE([OS_NULL], [1], [Null backend])
-	THREAD_CFLAGS="-pthread"
-	LIBS="-pthread"
-	;;
-openbsd)
-	AC_DEFINE([OS_OPENBSD], [1], [OpenBSD backend])
-	THREAD_CFLAGS="-pthread"
-	LIBS="-pthread"
 	;;
 sunos)
-	AC_DEFINE([OS_SUNOS], [1], [SunOS backend])
-	THREAD_CFLAGS="-pthread"
-	LIBS="-pthread -ldevinfo"
+	LIBS="${LIBS} -ldevinfo"
 	;;
 windows)
-	AC_DEFINE([OS_WINDOWS], [1], [Windows backend])
 	AC_CHECK_TYPES([struct timespec], [], [], [[#include <time.h>]])
-	LIBS=""
-	LTLDFLAGS="${LTLDFLAGS} -avoid-version -Wl,--add-stdcall-alias"
-	AC_DEFINE([_WIN32_WINNT], [_WIN32_WINNT_VISTA], [Oldest Windows version supported (Vista)])
+	AC_DEFINE([_WIN32_WINNT], [_WIN32_WINNT_VISTA], [Define to the oldest supported Windows version.])
+	LT_LDFLAGS="${LT_LDFLAGS} -avoid-version -Wl,--add-stdcall-alias"
 	;;
 *)
-	AC_MSG_ERROR([Unknown backend])
+	dnl no special handling required
 	;;
 esac
-
-AC_SUBST(LIBS)
-
-AM_CONDITIONAL([OS_DARWIN], [test "x$backend" = xdarwin])
-AM_CONDITIONAL([OS_HAIKU], [test "x$backend" = xhaiku])
-AM_CONDITIONAL([OS_LINUX], [test "x$backend" = xlinux])
-AM_CONDITIONAL([OS_NETBSD], [test "x$backend" = xnetbsd])
-AM_CONDITIONAL([OS_NULL], [test "x$backend" = xnull])
-AM_CONDITIONAL([OS_OPENBSD], [test "x$backend" = xopenbsd])
-AM_CONDITIONAL([OS_SUNOS], [test "x$backend" = xsunos])
-AM_CONDITIONAL([OS_WINDOWS], [test "x$backend" = xwindows])
-AM_CONDITIONAL([POLL_POSIX], [test "x$poll" = xposix])
-AM_CONDITIONAL([POLL_WINDOWS], [test "x$poll" = xwindows])
-AM_CONDITIONAL([THREADS_POSIX], [test "x$threads" = xposix])
-AM_CONDITIONAL([THREADS_WINDOWS], [test "x$threads" = xwindows])
-AM_CONDITIONAL([CREATE_IMPORT_LIB], [test "x$create_import_lib" = xyes])
-AM_CONDITIONAL([USE_UDEV], [test "x$enable_udev" = xyes])
-
-if test "x$poll" = xposix; then
-	AC_DEFINE([POLL_POSIX], [1], [Use POSIX poll() implementation])
-	AC_CHECK_TYPES([nfds_t], [], [], [[#include <poll.h>]])
-	AC_CHECK_FUNCS([pipe2])
-elif test "x$poll" = xwindows; then
-	AC_DEFINE([POLL_WINDOWS], [1], [Use Windows poll() implementation])
-else
-	AC_MSG_ERROR([Unknown poll implementation])
-fi
-
-if test "x$threads" = xposix; then
-	AC_DEFINE([THREADS_POSIX], [1], [Use POSIX Threads])
-elif test "x$threads" = xwindows; then
-	AC_DEFINE([THREADS_WINDOWS], [1], [Use Windows Threads])
-else
-	AC_MSG_ERROR([Unknown threads implementation])
-fi
 
 dnl headers not available on all platforms but required on others
 AC_CHECK_HEADERS([sys/time.h])
 
-dnl the clock_gettime() function needs certain clock IDs defined
-AC_CHECK_FUNCS([clock_gettime], [have_clock_gettime=yes], [have_clockgettime=no])
-if test "x$have_clock_gettime" = xyes; then
-	AC_CHECK_DECL([CLOCK_REALTIME], [], [AC_MSG_ERROR([C library headers missing definition for CLOCK_REALTIME])], [[#include <time.h>]])
-	AC_CHECK_DECL([CLOCK_MONOTONIC], [], [AC_MSG_ERROR([C library headers missing definition for CLOCK_MONOTONIC])], [[#include <time.h>]])
-elif test "x$backend" != xdarwin && test "x$backend" != xwindows; then
-       AC_MSG_ERROR([clock_gettime() is required on this platform])
+if test "x$platform" = xposix; then
+	dnl check availability of clock_gettime()
+	if test "x$backend" = xdarwin; then
+		dnl need to verify that OS X target is 10.12 or later for clock_gettime()
+		AC_MSG_CHECKING([whether OS X target version is 10.12 or later])
+		AC_COMPILE_IFELSE([AC_LANG_PROGRAM([
+				#include <AvailabilityMacros.h>
+				#if MAC_OS_X_VERSION_MIN_REQUIRED < MAC_OS_X_VERSION_10_12
+				# error "Target OS X version is too old"
+				#endif
+			], [])],
+			[AC_MSG_RESULT([yes])
+			 osx_10_12_or_later=yes],
+			[AC_MSG_RESULT([no])
+			 osx_10_12_or_later=])
+		if test "x$osx_10_12_or_later" = xyes; then
+			AC_CHECK_FUNCS([clock_gettime], [have_clock_gettime=yes], [have_clock_gettime=])
+		else
+			AC_MSG_NOTICE([clock_gettime() is not available on target OS X version])
+		fi
+	else
+		AC_CHECK_FUNCS([clock_gettime], [have_clock_gettime=yes], [AC_MSG_ERROR([clock_gettime() is required on this platform])])
+	fi
+
+	if test "x$have_clock_gettime" = xyes; then
+		dnl the clock_gettime() function needs certain clock IDs defined
+		AC_CHECK_DECL([CLOCK_MONOTONIC], [], [AC_MSG_ERROR([C library headers missing definition for CLOCK_MONOTONIC])], [[#include <time.h>]])
+		dnl use the monotonic clock for condition variable timed waits if possible
+		AC_CHECK_FUNCS([pthread_condattr_setclock], [need_clock_realtime=], [need_clock_realtime=yes])
+		if test "x$need_clock_realtime" = xyes; then
+			AC_CHECK_DECL([CLOCK_REALTIME], [], [AC_MSG_ERROR([C library headers missing definition for CLOCK_REALTIME])], [[#include <time.h>]])
+		fi
+	fi
+fi
+
+dnl eventfd support
+if test "x$backend" = xlinux || test "x$backend" = xsunos; then
+	AC_ARG_ENABLE([eventfd],
+		[AS_HELP_STRING([--enable-eventfd], [use eventfd for signalling [default=auto]])],
+		[use_eventfd=$enableval],
+		[use_eventfd=auto])
+	if test "x$use_eventfd" != xno; then
+		AC_CHECK_HEADER([sys/eventfd.h], [eventfd_h=yes], [eventfd_h=])
+		if test "x$eventfd_h" = xyes; then
+			AC_CHECK_DECLS([EFD_NONBLOCK, EFD_CLOEXEC], [eventfd_h_ok=yes], [eventfd_h_ok=], [[#include <sys/eventfd.h>]])
+			if test "x$eventfd_h_ok" = xyes; then
+				AC_CHECK_FUNC([eventfd], [eventfd_ok=yes], [eventfd_ok=])
+				if test "x$eventfd_ok" = xyes; then
+					AC_DEFINE([HAVE_EVENTFD], [1], [Define to 1 if the system has eventfd functionality.])
+				elif test "x$use_eventfd" = xyes; then
+					AC_MSG_ERROR([eventfd() function not found; glibc 2.9+ required])
+				fi
+			elif test "x$use_eventfd" = xyes; then
+				AC_MSG_ERROR([eventfd header not usable; glibc 2.9+ required])
+			fi
+		elif test "x$use_eventfd" = xyes; then
+			AC_MSG_ERROR([eventfd header not available; glibc 2.9+ required])
+		fi
+	fi
+	AC_MSG_CHECKING([whether to use eventfd for signalling])
+	if test "x$use_eventfd" = xno; then
+		AC_MSG_RESULT([no (disabled by user)])
+	elif test "x$eventfd_h" != xyes; then
+		AC_MSG_RESULT([no (header not available)])
+	elif test "x$eventfd_h_ok" != xyes; then
+		AC_MSG_RESULT([no (header not usable)])
+	elif test "x$eventfd_ok" != xyes; then
+		AC_MSG_RESULT([no (functions not available)])
+	else
+		AC_MSG_RESULT([yes])
+	fi
 fi
 
 dnl timerfd support
@@ -231,13 +279,13 @@ if test "x$backend" = xlinux || test "x$backend" = xsunos; then
 		[use_timerfd=$enableval],
 		[use_timerfd=auto])
 	if test "x$use_timerfd" != xno; then
-		AC_CHECK_HEADER([sys/timerfd.h], [timerfd_h=yes], [timerfd_h=no])
+		AC_CHECK_HEADER([sys/timerfd.h], [timerfd_h=yes], [timerfd_h=])
 		if test "x$timerfd_h" = xyes; then
-			AC_CHECK_DECLS([TFD_NONBLOCK, TFD_CLOEXEC], [timerfd_h_ok=yes], [timerfd_h_ok=no], [[#include <sys/timerfd.h>]])
+			AC_CHECK_DECLS([TFD_NONBLOCK, TFD_CLOEXEC], [timerfd_h_ok=yes], [timerfd_h_ok=], [[#include <sys/timerfd.h>]])
 			if test "x$timerfd_h_ok" = xyes; then
-				AC_CHECK_FUNC([timerfd_create], [timerfd_ok=yes], [timerfd_ok=no])
+				AC_CHECK_FUNC([timerfd_create], [timerfd_ok=yes], [timerfd_ok=])
 				if test "x$timerfd_ok" = xyes; then
-					AC_DEFINE([HAVE_TIMERFD], [1], [Define if the system has timerfd functionality])
+					AC_DEFINE([HAVE_TIMERFD], [1], [Define to 1 if the system has timerfd functionality.])
 				elif test "x$use_timerfd" = xyes; then
 					AC_MSG_ERROR([timerfd_create() function not found; glibc 2.9+ required])
 				fi
@@ -251,11 +299,11 @@ if test "x$backend" = xlinux || test "x$backend" = xsunos; then
 	AC_MSG_CHECKING([whether to use timerfd for timing])
 	if test "x$use_timerfd" = xno; then
 		AC_MSG_RESULT([no (disabled by user)])
-	elif test "x$timerfd_h" = xno; then
-		AC_MSG_RESULT([no (header not usable)])
-	elif test "x$timerfd_h_ok" = xno; then
+	elif test "x$timerfd_h" != xyes; then
 		AC_MSG_RESULT([no (header not available)])
-	elif test "x$timerfd_ok" = xno; then
+	elif test "x$timerfd_h_ok" != xyes; then
+		AC_MSG_RESULT([no (header not usable)])
+	elif test "x$timerfd_ok" != xyes; then
 		AC_MSG_RESULT([no (functions not available)])
 	else
 		AC_MSG_RESULT([yes])
@@ -268,7 +316,7 @@ AC_ARG_ENABLE([log],
 	[log_enabled=$enableval],
 	[log_enabled=yes])
 if test "x$log_enabled" != xno; then
-	AC_DEFINE([ENABLE_LOGGING], [1], [Message logging])
+	AC_DEFINE([ENABLE_LOGGING], [1], [Define to 1 to enable message logging.])
 fi
 
 AC_ARG_ENABLE([debug-log],
@@ -276,18 +324,18 @@ AC_ARG_ENABLE([debug-log],
 	[debug_log_enabled=$enableval],
 	[debug_log_enabled=no])
 if test "x$debug_log_enabled" != xno; then
-	AC_DEFINE([ENABLE_DEBUG_LOGGING], [1], [Start with debug message logging enabled])
+	AC_DEFINE([ENABLE_DEBUG_LOGGING], [1], [Define to 1 to start with debug message logging enabled.])
 fi
 
 AC_ARG_ENABLE([system-log],
-	[AS_HELP_STRING([--enable-system-log], [output logging messages to system wide log, if supported by the OS [default=no]])],
+	[AS_HELP_STRING([--enable-system-log], [output logging messages to the systemwide log, if supported by the OS [default=no]])],
 	[system_log_enabled=$enableval],
 	[system_log_enabled=no])
 if test "x$system_log_enabled" != xno; then
-	AC_DEFINE([USE_SYSTEM_LOGGING_FACILITY], [1], [Enable output to system log])
-	if test "x$backend" != xwindows && test "x$is_backend_android" != xyes; then
+	AC_DEFINE([USE_SYSTEM_LOGGING_FACILITY], [1], [Define to 1 to output logging messages to the systemwide log.])
+	if test "x$backend" != xwindows && test "x$is_android_linux" != xyes; then
 		dnl Check if syslog is available in standard C library
-		AC_CHECK_HEADER([syslog.h], [syslog_h=yes], [syslog_h=no])
+		AC_CHECK_HEADER([syslog.h], [syslog_h=yes], [syslog_h=])
 		if test "x$syslog_h" = xyes; then
 			AC_CHECK_FUNCS([syslog])
 		fi
@@ -299,69 +347,54 @@ AC_ARG_ENABLE([examples-build],
 	[AS_HELP_STRING([--enable-examples-build], [build example applications [default=no]])],
 	[build_examples=$enableval],
 	[build_examples=no])
-AM_CONDITIONAL([BUILD_EXAMPLES], [test "x$build_examples" != xno])
 
 dnl Tests build
 AC_ARG_ENABLE([tests-build],
 	[AS_HELP_STRING([--enable-tests-build], [build test applications [default=no]])],
 	[build_tests=$enableval],
 	[build_tests=no])
+
+AM_CONDITIONAL([BUILD_EXAMPLES], [test "x$build_examples" != xno])
 AM_CONDITIONAL([BUILD_TESTS], [test "x$build_tests" != xno])
+AM_CONDITIONAL([CREATE_IMPORT_LIB], [test "x$create_import_lib" = xyes])
+AM_CONDITIONAL([OS_DARWIN], [test "x$backend" = xdarwin])
+AM_CONDITIONAL([OS_HAIKU], [test "x$backend" = xhaiku])
+AM_CONDITIONAL([OS_LINUX], [test "x$backend" = xlinux])
+AM_CONDITIONAL([OS_NETBSD], [test "x$backend" = xnetbsd])
+AM_CONDITIONAL([OS_NULL], [test "x$backend" = xnull])
+AM_CONDITIONAL([OS_OPENBSD], [test "x$backend" = xopenbsd])
+AM_CONDITIONAL([OS_SUNOS], [test "x$backend" = xsunos])
+AM_CONDITIONAL([OS_WINDOWS], [test "x$backend" = xwindows])
+AM_CONDITIONAL([PLATFORM_POSIX], [test "x$platform" = xposix])
+AM_CONDITIONAL([PLATFORM_WINDOWS], [test "x$platform" = xwindows])
+AM_CONDITIONAL([USE_UDEV], [test "x$use_udev" = xyes])
 
-dnl sigaction needed for some example programs
-if test "x$build_examples" != xno; then
-	AC_CHECK_FUNC([sigaction], [have_sigaction=yes], [have_sigaction=no])
-fi
-AM_CONDITIONAL([HAVE_SIGACTION], [test "x$have_sigaction" = xyes])
-
-dnl check for -fvisibility=hidden compiler support (GCC >= 3.4)
-saved_CFLAGS="${CFLAGS}"
-dnl -Werror required for cygwin
-CFLAGS="${CFLAGS} -Werror -fvisibility=hidden"
-AC_COMPILE_IFELSE([AC_LANG_PROGRAM([])],
-	[VISIBILITY_CFLAGS="-fvisibility=hidden"
-	 AC_DEFINE([DEFAULT_VISIBILITY], [__attribute__((visibility("default")))], [Default visibility])],
-	[VISIBILITY_CFLAGS=""
-	 AC_DEFINE([DEFAULT_VISIBILITY], [], [Default visibility])],
-	])
-CFLAGS="${saved_CFLAGS}"
-
-dnl check for -Wno-pointer-sign compiler support (GCC >= 4)
-saved_CFLAGS="${CFLAGS}"
-CFLAGS="${CFLAGS} -Wno-pointer-sign"
-AC_COMPILE_IFELSE([AC_LANG_PROGRAM([])],
-	nopointersign_cflags="-Wno-pointer-sign", nopointersign_cflags="")
-CFLAGS="${saved_CFLAGS}"
-
-dnl check for -std=gnu11 compiler support
-saved_CFLAGS="${CFLAGS}"
-CFLAGS="-std=gnu11"
-AC_MSG_CHECKING([whether CC supports -std=gnu11])
-AC_COMPILE_IFELSE([AC_LANG_PROGRAM([])],
-	[AC_MSG_RESULT([yes])
-	 AM_CFLAGS="${AM_CFLAGS} -std=gnu11"],
-	[AC_MSG_RESULT([no])])
-CFLAGS="${saved_CFLAGS}"
-
-dnl check for _Thread_local compiler support
-if test "x$backend" != xwindows; then
+dnl The -Wcast-function-type warning causes a flurry of warnings when compiling
+dnl Windows with GCC 8 or later because of dynamically loaded functions
+if test "x$backend" = xwindows; then
 	saved_CFLAGS="${CFLAGS}"
-	saved_LDFLAGS="${LDFLAGS}"
-	CFLAGS="${CFLAGS} -fPIC"
-	LDFLAGS="${LDFLAGS} -shared"
-	AC_MSG_CHECKING([whether CC supports _Thread_local])
-	AC_LINK_IFELSE([AC_LANG_PROGRAM([], [static _Thread_local int v])],
-		[AC_MSG_RESULT([yes])
-		 AC_DEFINE([HAVE_CC_THREAD_LOCAL], [1], [Define to 1 if the compiler supports _Thread_local.])],
-		[AC_MSG_RESULT([no])])
+	CFLAGS="-Werror -Wcast-function-type"
+	AC_COMPILE_IFELSE([AC_LANG_PROGRAM([], [])],
+		[EXTRA_CFLAGS="${EXTRA_CFLAGS} -Wno-cast-function-type"],
+		[])
 	CFLAGS="${saved_CFLAGS}"
-	LDFLAGS="${saved_LDFLAGS}"
 fi
 
-AM_CFLAGS="${AM_CFLAGS} -Wall -Wundef -Wunused -Wstrict-prototypes -Werror-implicit-function-declaration ${nopointersign_cflags} -Wshadow ${THREAD_CFLAGS} ${VISIBILITY_CFLAGS}"
+SHARED_CFLAGS="-Wall -Wextra -Wshadow -Wunused -Wwrite-strings -Werror=format-security -Werror=implicit-function-declaration -Werror=implicit-int -Werror=init-self -Werror=missing-prototypes -Werror=strict-prototypes -Werror=undef -Werror=uninitialized"
 
+AM_CPPFLAGS="${EXTRA_CPPFLAGS}"
+AC_SUBST(AM_CPPFLAGS)
+
+AM_CFLAGS="-std=${c_dialect}11 ${EXTRA_CFLAGS} ${SHARED_CFLAGS}"
 AC_SUBST(AM_CFLAGS)
-AC_SUBST(LTLDFLAGS)
+
+AM_CXXFLAGS="-std=${c_dialect}++11 ${EXTRA_CFLAGS} ${SHARED_CFLAGS} -Wmissing-declarations"
+AC_SUBST(AM_CXXFLAGS)
+
+AC_SUBST(LT_LDFLAGS)
+
+dnl set name of html output directory for doxygen
+AC_SUBST(DOXYGEN_HTMLDIR, [api-1.0])
 
 AC_CONFIG_FILES([libusb-1.0.pc])
 AC_CONFIG_FILES([Makefile])

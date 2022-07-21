@@ -1,0 +1,45 @@
+libusb-1.0.lo: libusb-1.0.rc c:\mingw\include\winresrc.h \
+ c:\mingw\include\winuser.h c:\mingw\include\wingdi.h \
+ c:\mingw\include\windef.h c:\mingw\include\w32api.h \
+ c:\mingw\include\sdkddkver.h c:\mingw\include\winnt.h \
+ c:\mingw\include\winerror.h c:\mingw\include\basetsd.h \
+ c:\mingw\lib\gcc\mingw32\6.3.0\include\stdarg.h c:\mingw\include\dbt.h \
+ c:\mingw\include\winver.h c:\mingw\include\dde.h c:\mingw\include\dlgs.h \
+ c:\mingw\include\commctrl.h c:\mingw\include\prsht.h version.h \
+ version_nano.h
+
+c:\mingw\include\winresrc.h:
+
+c:\mingw\include\winuser.h:
+
+c:\mingw\include\wingdi.h:
+
+c:\mingw\include\windef.h:
+
+c:\mingw\include\w32api.h:
+
+c:\mingw\include\sdkddkver.h:
+
+c:\mingw\include\winnt.h:
+
+c:\mingw\include\winerror.h:
+
+c:\mingw\include\basetsd.h:
+
+c:\mingw\lib\gcc\mingw32\6.3.0\include\stdarg.h:
+
+c:\mingw\include\dbt.h:
+
+c:\mingw\include\winver.h:
+
+c:\mingw\include\dde.h:
+
+c:\mingw\include\dlgs.h:
+
+c:\mingw\include\commctrl.h:
+
+c:\mingw\include\prsht.h:
+
+version.h:
+
+version_nano.h:

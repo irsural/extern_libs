@@ -1,22 +1,27 @@
 /* config.h.in.  Generated from configure.ac by autoheader.  */
 
-/* Default visibility */
+/* Define to the attribute for default visibility. */
 #undef DEFAULT_VISIBILITY
 
-/* Start with debug message logging enabled */
+/* Define to 1 to start with debug message logging enabled. */
 #undef ENABLE_DEBUG_LOGGING
 
-/* Message logging */
+/* Define to 1 to enable message logging. */
 #undef ENABLE_LOGGING
 
 /* Define to 1 if you have the <asm/types.h> header file. */
 #undef HAVE_ASM_TYPES_H
 
-/* Define to 1 if the compiler supports _Thread_local. */
-#undef HAVE_CC_THREAD_LOCAL
-
 /* Define to 1 if you have the `clock_gettime' function. */
 #undef HAVE_CLOCK_GETTIME
+
+/* Define to 1 if you have the declaration of `EFD_CLOEXEC', and to 0 if you
+   don't. */
+#undef HAVE_DECL_EFD_CLOEXEC
+
+/* Define to 1 if you have the declaration of `EFD_NONBLOCK', and to 0 if you
+   don't. */
+#undef HAVE_DECL_EFD_NONBLOCK
 
 /* Define to 1 if you have the declaration of `TFD_CLOEXEC', and to 0 if you
    don't. */
@@ -29,8 +34,15 @@
 /* Define to 1 if you have the <dlfcn.h> header file. */
 #undef HAVE_DLFCN_H
 
+/* Define to 1 if the system has eventfd functionality. */
+#undef HAVE_EVENTFD
+
 /* Define to 1 if you have the <inttypes.h> header file. */
 #undef HAVE_INTTYPES_H
+
+/* Define to 1 if you have the <IOKit/usb/IOUSBHostFamilyDefinitions.h> header
+   file. */
+#undef HAVE_IOKIT_USB_IOUSBHOSTFAMILYDEFINITIONS_H
 
 /* Define to 1 if you have the `udev' library (-ludev). */
 #undef HAVE_LIBUDEV
@@ -44,8 +56,14 @@
 /* Define to 1 if you have the `pipe2' function. */
 #undef HAVE_PIPE2
 
+/* Define to 1 if you have the `pthread_condattr_setclock' function. */
+#undef HAVE_PTHREAD_CONDATTR_SETCLOCK
+
 /* Define to 1 if you have the `pthread_setname_np' function. */
 #undef HAVE_PTHREAD_SETNAME_NP
+
+/* Define to 1 if you have the `pthread_threadid_np' function. */
+#undef HAVE_PTHREAD_THREADID_NP
 
 /* Define to 1 if you have the <stdint.h> header file. */
 #undef HAVE_STDINT_H
@@ -74,38 +92,15 @@
 /* Define to 1 if you have the <sys/types.h> header file. */
 #undef HAVE_SYS_TYPES_H
 
-/* Define if the system has timerfd functionality */
+/* Define to 1 if the system has timerfd functionality. */
 #undef HAVE_TIMERFD
 
 /* Define to 1 if you have the <unistd.h> header file. */
 #undef HAVE_UNISTD_H
 
-/* Define to the sub-directory where libtool stores uninstalled libraries. */
+/* Define to the sub-directory in which libtool stores uninstalled libraries.
+   */
 #undef LT_OBJDIR
-
-/* Darwin backend */
-#undef OS_DARWIN
-
-/* Haiku backend */
-#undef OS_HAIKU
-
-/* Linux backend */
-#undef OS_LINUX
-
-/* NetBSD backend */
-#undef OS_NETBSD
-
-/* Null backend */
-#undef OS_NULL
-
-/* OpenBSD backend */
-#undef OS_OPENBSD
-
-/* SunOS backend */
-#undef OS_SUNOS
-
-/* Windows backend */
-#undef OS_WINDOWS
 
 /* Name of package */
 #undef PACKAGE
@@ -128,31 +123,29 @@
 /* Define to the version of this package. */
 #undef PACKAGE_VERSION
 
-/* Use POSIX poll() implementation */
-#undef POLL_POSIX
+/* Define to 1 if compiling for a POSIX platform. */
+#undef PLATFORM_POSIX
 
-/* Use Windows poll() implementation */
-#undef POLL_WINDOWS
+/* Define to 1 if compiling for a Windows platform. */
+#undef PLATFORM_WINDOWS
+
+/* Define to the attribute for enabling parameter checks on printf-like
+   functions. */
+#undef PRINTF_FORMAT
 
 /* Define to 1 if you have the ANSI C header files. */
 #undef STDC_HEADERS
 
-/* Use POSIX Threads */
-#undef THREADS_POSIX
-
-/* Use Windows Threads */
-#undef THREADS_WINDOWS
-
-/* Enable output to system log */
+/* Define to 1 to output logging messages to the systemwide log. */
 #undef USE_SYSTEM_LOGGING_FACILITY
 
 /* Version number of package */
 #undef VERSION
 
-/* Use GNU extensions */
+/* Enable GNU extensions. */
 #undef _GNU_SOURCE
 
-/* Oldest Windows version supported (Vista) */
+/* Define to the oldest supported Windows version. */
 #undef _WIN32_WINNT
 
 /* Define to `__inline__' or `__inline' if that's what the C compiler

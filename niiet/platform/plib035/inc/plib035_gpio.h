@@ -815,9 +815,9 @@ __STATIC_INLINE void GPIO_LockCmd(GPIO_TypeDef* GPIOx, uint32_t Pin, FunctionalS
   * @}
   */
 
-#ifdef __cplusplus
-}
-#endif
+//#ifdef __cplusplus
+//}
+//#endif
 
 #endif /* __PLIB035_GPIO_H */
 

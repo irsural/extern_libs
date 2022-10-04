@@ -49,7 +49,9 @@
 
 // #define DBGLOG_ENABLE
 
-#define DBGLOG_LEVEL 0
+#ifndef DBGLOG_LEVEL
+    #define DBGLOG_LEVEL 0
+#endif // DBGLOG_LEVEL
 
 #ifdef DBGLOG_ENABLE
     #include "dbglog/dbglog.h"

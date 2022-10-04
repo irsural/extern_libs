@@ -93,7 +93,7 @@ void *umm_info(void *ptr, bool force) {
                 ummHeapInfo.maxFreeContiguousBlocks = curBlocks;
             }
 
-            DBGLOG_FORCE(force, "|0x%08x|B %5i|NB %5i|PB %5i|Z %5u|NF %5i|PF %5i|\n",
+            DBGLOG_FORCE(force, "|0x%08x|B %5i|NB %5i|PB %5i|Z %5hu|NF %5i|PF %5i|\n",
                 DBGLOG_32_BIT_PTR(&UMM_BLOCK(blockNo)),
                 blockNo,
                 UMM_NBLOCK(blockNo) & UMM_BLOCKNO_MASK,
@@ -115,7 +115,7 @@ void *umm_info(void *ptr, bool force) {
             ++ummHeapInfo.usedEntries;
             ummHeapInfo.usedBlocks += curBlocks;
 
-            DBGLOG_FORCE(force, "|0x%08x|B %5i|NB %5i|PB %5i|Z %5u|                 |\n",
+            DBGLOG_FORCE(force, "|0x%08x|B %5i|NB %5i|PB %5i|Z %5hu|                 |\n",
                 DBGLOG_32_BIT_PTR(&UMM_BLOCK(blockNo)),
                 blockNo,
                 UMM_NBLOCK(blockNo) & UMM_BLOCKNO_MASK,
@@ -144,12 +144,12 @@ void *umm_info(void *ptr, bool force) {
 
     DBGLOG_FORCE(force, "+----------+-------+--------+--------+-------+--------+--------+\n");
 
-    DBGLOG_FORCE(force, "Total Entries %5i    Used Entries %5i    Free Entries %5i\n",
+    DBGLOG_FORCE(force, "Total Entries %5u    Used Entries %5u    Free Entries %5u\n",
         ummHeapInfo.totalEntries,
         ummHeapInfo.usedEntries,
         ummHeapInfo.freeEntries);
 
-    DBGLOG_FORCE(force, "Total Blocks  %5i    Used Blocks  %5i    Free Blocks  %5i\n",
+    DBGLOG_FORCE(force, "Total Blocks  %5u    Used Blocks  %5u    Free Blocks  %5u\n",
         ummHeapInfo.totalBlocks,
         ummHeapInfo.usedBlocks,
         ummHeapInfo.freeBlocks);
@@ -190,7 +190,7 @@ int umm_usage_metric(void) {
     #else
     umm_info(NULL, false);
     #endif
-    DBGLOG_DEBUG("usedBlocks %i totalBlocks %i\n", ummHeapInfo.usedBlocks, ummHeapInfo.totalBlocks);
+    DBGLOG_DEBUG("usedBlocks %u totalBlocks %u\n", ummHeapInfo.usedBlocks, ummHeapInfo.totalBlocks);
 
     return ummHeapInfo.usage_metric;
 }
@@ -201,7 +201,7 @@ int umm_fragmentation_metric(void) {
     #else
     umm_info(NULL, false);
     #endif
-    DBGLOG_DEBUG("freeBlocks %i freeBlocksSquared %i\n", ummHeapInfo.freeBlocks, ummHeapInfo.freeBlocksSquared);
+    DBGLOG_DEBUG("freeBlocks %u freeBlocksSquared %u\n", ummHeapInfo.freeBlocks, ummHeapInfo.freeBlocksSquared);
 
     return ummHeapInfo.fragmentation_metric;
 }

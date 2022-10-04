@@ -22,7 +22,8 @@ static size_t poison_size(size_t s) {
  */
 static void dump_mem(const void *ptr, size_t len) {
     while (len--) {
-        DBGLOG_ERROR(" 0x%.2x", (*(uint8_t *)ptr++));
+        DBGLOG_ERROR(" 0x%.2x", (*(uint8_t *)ptr));
+        ptr = (char*)ptr + 1;
     }
 }
 
@@ -75,13 +76,13 @@ static bool check_poison_block(umm_block *pblock) {
         void *pc = (void *)pblock->body.data;
         void *pc_cur;
 
-        pc_cur = pc + sizeof(UMM_POISONED_BLOCK_LEN_TYPE);
+        pc_cur = (char*)pc + sizeof(UMM_POISONED_BLOCK_LEN_TYPE);
         if (!check_poison(pc_cur, UMM_POISON_SIZE_BEFORE, "before")) {
             ok = false;
             goto clean;
         }
 
-        pc_cur = pc + *((UMM_POISONED_BLOCK_LEN_TYPE *)pc) - UMM_POISON_SIZE_AFTER;
+        pc_cur = (char*)pc + *((UMM_POISONED_BLOCK_LEN_TYPE *)pc) - UMM_POISON_SIZE_AFTER;
         if (!check_poison(pc_cur, UMM_POISON_SIZE_AFTER, "after")) {
             ok = false;
             goto clean;
@@ -103,16 +104,16 @@ static void *get_poisoned(void *ptr, size_t size_w_poison) {
     if (size_w_poison != 0 && ptr != NULL) {
 
         /* Poison beginning and the end of the allocated chunk */
-        put_poison(ptr + sizeof(UMM_POISONED_BLOCK_LEN_TYPE),
+        put_poison((char*)ptr + sizeof(UMM_POISONED_BLOCK_LEN_TYPE),
             UMM_POISON_SIZE_BEFORE);
-        put_poison(ptr + size_w_poison - UMM_POISON_SIZE_AFTER,
+        put_poison((char*)ptr + size_w_poison - UMM_POISON_SIZE_AFTER,
             UMM_POISON_SIZE_AFTER);
 
         /* Put exact length of the user's chunk of memory */
         *(UMM_POISONED_BLOCK_LEN_TYPE *)ptr = (UMM_POISONED_BLOCK_LEN_TYPE)size_w_poison;
 
         /* Return pointer at the first non-poisoned byte */
-        return ptr + sizeof(UMM_POISONED_BLOCK_LEN_TYPE) + UMM_POISON_SIZE_BEFORE;
+        return (char*)ptr + sizeof(UMM_POISONED_BLOCK_LEN_TYPE) + UMM_POISON_SIZE_BEFORE;
     } else {
         return ptr;
     }
@@ -128,10 +129,10 @@ static void *get_unpoisoned(void *ptr) {
     if (ptr != NULL) {
         uint16_t c;
 
-        ptr -= (sizeof(UMM_POISONED_BLOCK_LEN_TYPE) + UMM_POISON_SIZE_BEFORE);
+        ptr = (char*)ptr - (sizeof(UMM_POISONED_BLOCK_LEN_TYPE) + UMM_POISON_SIZE_BEFORE);
 
         /* Figure out which block we're in. Note the use of truncated division... */
-        c = (((void *)ptr) - (void *)(&(UMM_HEAP[0]))) / UMM_BLOCKSIZE;
+        c = (((char*)ptr) - (char*)(&(UMM_HEAP[0]))) / UMM_BLOCKSIZE;
 
         check_poison_block(&UMM_BLOCK(c));
     }

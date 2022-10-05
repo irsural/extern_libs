@@ -306,7 +306,9 @@ extern int umm_max_critical_depth;
 extern bool umm_integrity_check(void);
 #define INTEGRITY_CHECK() umm_integrity_check()
 extern void umm_corruption(void);
+#ifndef UMM_HEAP_CORRUPTION_CB
 #define UMM_HEAP_CORRUPTION_CB() printf("Heap Corruption!")
+#endif // UMM_HEAP_CORRUPTION_CB
 #else
 #define INTEGRITY_CHECK() (1)
 #endif

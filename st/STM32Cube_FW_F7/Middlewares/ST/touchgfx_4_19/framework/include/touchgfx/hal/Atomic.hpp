@@ -23,7 +23,7 @@
  */
 
 #if defined(WIN32) || defined(_WIN32)
-
+#include <WinSock2.h>
 #include <windows.h>
 /** Defines the atomic type. */
 typedef LONG atomic_t;

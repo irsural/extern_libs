@@ -1313,10 +1313,16 @@ void HALSDL2::saveScreenshot()
     localtime_s(&localt, &t);
 
     char baseName[20]; // "img_YYYYMMDD_HHMMSS" is 19 long
+    #ifdef __GNUC__
+    _Pragma("GCC diagnostic push");
+    _Pragma("GCC diagnostic ignored \"-Wformat-truncation\"");
+    #endif //__GNUC__
     sprintf_s(baseName, 20, "img_%04d%02d%02d_%02d%02d%02d",
               1900 + localt.tm_year, localt.tm_mon + 1, localt.tm_mday,
               localt.tm_hour, localt.tm_min, localt.tm_sec);
-
+    #ifdef __GNUC__
+    _Pragma("GCC diagnostic pop");
+    #endif //__GNUC__
     char fileName[100];
     if (strncmp(baseName, lastBaseName, sizeof(baseName)) == 0)
     {
